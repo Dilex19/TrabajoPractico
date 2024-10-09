@@ -57,6 +57,7 @@ public class Juego extends InterfaceJuego
 			//Dibujar
 			jugador.dibujar(entorno);
 			enemigo.dibujar(entorno);
+			//Colision con un enemigo
 			if(colision(jugador, enemigo,30)){
 				jugador=null;
 				System.out.println("colision!!!!");
