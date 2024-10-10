@@ -12,6 +12,7 @@ public class Juego extends InterfaceJuego
 	private Entorno entorno;
 	private Jugador jugador;
 	private Enemigo enemigo;
+	private Isla[] islas;
 	// Variables y métodos propios de cada grupo
 	// ...
 	
@@ -19,8 +20,15 @@ public class Juego extends InterfaceJuego
 	{
 		// Inicializa el objeto entorno
 		this.entorno = new Entorno(this, "Proyecto para TP", 800, 600);
-		this.jugador = new Jugador(400,300);
-		this.enemigo = new Enemigo(100,100);
+		this.jugador = new Jugador(300.0,100.0, entorno);
+//		this.enemigo = new Enemigo(100,100);
+		this.islas = new Isla[15];
+		int k = 0;
+		for(int i = 1; i<6;i++) {
+			for( int j =1; j <= i;j++) {
+				islas[k++] = new Isla((j)*this.entorno.ancho()/(i+1), 100*i, entorno,1.0/(i+2));
+			}
+		}
 		
 		// Inicializar lo que haga falta para el juego
 		// ...
@@ -39,29 +47,43 @@ public class Juego extends InterfaceJuego
 	{
 		// Procesamiento de un instante de tiempo
 		// ...
+		for(Isla is: this.islas) {
+			is.dibujar();
+		}
+		
 		if(jugador != null) {
+
+			jugador.dibujar();
 			if(entorno.estaPresionada(entorno.TECLA_IZQUIERDA)) {
 				jugador.moverIzquierda();
 			}
 			if(entorno.estaPresionada(entorno.TECLA_DERECHA)) {
 				jugador.moverDerecha();
 			}
-			if(entorno.estaPresionada(entorno.TECLA_ARRIBA)) {
-				jugador.moverArriba();
+			
+			
+			//Caida
+			jugador.gravedad();
+			if(estaApoyado(jugador, islas)) {
+				this.jugador.apoyado = true;
+			} else {
+				this.jugador.apoyado = false;
 			}
-			if(entorno.estaPresionada(entorno.TECLA_ABAJO)) {
-				jugador.moverAbajo();
-			}
+			
+//			if(entorno.estaPresionada(entorno.TECLA_ARRIBA)) {
+//				jugador.moverArriba();
+//			}
+//			if(entorno.estaPresionada(entorno.TECLA_ABAJO)) {
+//				jugador.moverAbajo();
+//			}
 			//Movimiento del enemigo hacia el jugador
-			enemigo.moverHaciaJugador(jugador);
-			//Dibujar
-			jugador.dibujar(entorno);
-			enemigo.dibujar(entorno);
-			//Colision con un enemigo
-			if(colision(jugador, enemigo,30)){
-				jugador=null;
-				System.out.println("colision!!!!");
-			}
+//			enemigo.moverHaciaJugador(jugador);
+//			//Dibujar
+//			enemigo.dibujar(entorno);
+//			if(colision(jugador, enemigo,30)){
+//				jugador=null;
+//				System.out.println("colision!!!!");
+//			}
 		}
 		
 		if(jugador== null) {
@@ -69,13 +91,28 @@ public class Juego extends InterfaceJuego
 		}
 		
 		if(jugador==null && entorno.estaPresionada(entorno.TECLA_ESPACIO)){
-			jugador=new Jugador(500,500);
+			jugador=new Jugador(500.0,500.0, entorno);
 			enemigo = new Enemigo(200,100);
 		}
 	
 		
 	
 		
+	}
+	
+	
+	public boolean estaApoyado(Jugador j, Isla[] i) {
+		for(Isla islas: i) {
+			if(estaApoyado(j,islas)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean estaApoyado(Jugador j, Isla i) {
+		return Math.abs(j.getBorderInferior()-i.getBorderSuperior())<2 && (j.getBorderIzquierdo()<i.getBorderDerecho()) && 
+				(j.getBorderDerecho()>i.getBorderIzquierdo());
 	}
 	
 	public boolean colision(Jugador n, Enemigo e, double d) {
