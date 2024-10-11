@@ -30,8 +30,6 @@ public class Juego extends InterfaceJuego
 				islas[k++] = new Isla((j)*this.entorno.ancho()/(i+1), 100*i, entorno,1.0/(i+2));
 			}
 		}
-		int momentoDeSalto = 0;
-		
 		// Inicializar lo que haga falta para el juego
 		// ...
 
