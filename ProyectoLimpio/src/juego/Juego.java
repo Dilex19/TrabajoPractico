@@ -112,8 +112,8 @@ public class Juego extends InterfaceJuego
 	}
 	
 	
-
-	private void salto() { // si el jugador toca la arriba y esta tocando el piso se guarda el momento en el que lo hizo
+	// si el jugador toca la arriba y esta tocando el piso se guarda el momento en el que lo hizo
+	private void salto() { 
 		if(this.entorno.sePresiono(entorno.TECLA_ARRIBA) && estaApoyado(jugador, islas)) {
 			this.momentoDeSalto = entorno.tiempo();
 			jugador.saltando = true;
