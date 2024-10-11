@@ -2,7 +2,7 @@ package juego;
 
 import java.awt.Color;
 import java.awt.Image;
-
+import juego.Juego;
 import entorno.Entorno;
 
 public class Jugador{
@@ -13,10 +13,12 @@ public class Jugador{
 	private double ancho;
 	private double alto;
 	private double escala;
+	boolean saltando;
 	Image Izq;
 	Image Der;
 	Entorno e;
 	boolean apoyado;
+	Juego j;
 	
 	public Jugador(double x, double y, Entorno e) {
 		this.x = x;
@@ -49,7 +51,7 @@ public class Jugador{
 		}
 	}
 	
-	
+	//el jugador caera simulando gravedad
 	public void gravedad() {
 		if(!apoyado) {
 			this.y+=2;
@@ -68,22 +70,47 @@ public class Jugador{
 	}
 	
 	
-	public double getBorderSuperior() {
+	
+	//El jugador subira por 300 milisegundos que dura el salto
+	public void saltando(int momentoDeSalto, int i) {
+		if(i- momentoDeSalto < 300) {
+			this.y-=8;
+		} else {
+			this.saltando = false;
+		}
+	}
+	
+	
+	
+	public boolean seCayoJugador() {
+		if(getBorderSuperior() > e.alto()+20) {
+			return true;
+		}
+		return false;
+	}
+	
+	
+	public double getBorderSuperior() { // retorna el borde de la parte superior de la imagen
 		return this.y - this.alto/2;
 	}
-	public double getBorderInferior() {
+	public double getBorderInferior() {// retorna el borde de la parte inferior de la imagen
 		return this.y + this.alto/2;
 	}
-	public double getBorderIzquierdo() {
+	public double getBorderIzquierdo() { // retorna el borde de la parte izquierda de la imagen
 		return this.x - this.ancho/2;
 	}
-	public double getBorderDerecho() {
+	public double getBorderDerecho() { // retorna el borde de la parte izquierda de la imagen
 		return this.x + this.ancho/2;
 	}
 	
 	public double getX() {return x;}
 	public double getY() {return y;}
 	public int getVida() {return vida;}
+	public void setY(double y) {
+		this.y = y;
+	}
 	
 	public void recibirDaño(int daño) {this.vida -=daño;}
+
+
 }

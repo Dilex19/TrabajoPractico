@@ -13,6 +13,7 @@ public class Juego extends InterfaceJuego
 	private Jugador jugador;
 	private Enemigo enemigo;
 	private Isla[] islas;
+	private int momentoDeSalto;
 	// Variables y métodos propios de cada grupo
 	// ...
 	
@@ -29,6 +30,7 @@ public class Juego extends InterfaceJuego
 				islas[k++] = new Isla((j)*this.entorno.ancho()/(i+1), 100*i, entorno,1.0/(i+2));
 			}
 		}
+		int momentoDeSalto = 0;
 		
 		// Inicializar lo que haga falta para el juego
 		// ...
@@ -47,12 +49,13 @@ public class Juego extends InterfaceJuego
 	{
 		// Procesamiento de un instante de tiempo
 		// ...
-		for(Isla is: this.islas) {
-			is.dibujar();
-		}
 		
 		if(jugador != null) {
 
+			for(Isla is: this.islas) {
+				is.dibujar();
+			}
+			
 			jugador.dibujar();
 			if(entorno.estaPresionada(entorno.TECLA_IZQUIERDA)) {
 				jugador.moverIzquierda();
@@ -61,21 +64,25 @@ public class Juego extends InterfaceJuego
 				jugador.moverDerecha();
 			}
 			
+			salto(); //funcion que toma en cuenta cuando el jugador quiere dar un salto
+			if(jugador.saltando) { //si el jugador esta saltando subira por cierto periodo de tiempo
+				jugador.saltando(momentoDeSalto, entorno.tiempo());
+			}
 			
-			//Caida
+			//Caida del jugador
 			jugador.gravedad();
+			
+			//
 			if(estaApoyado(jugador, islas)) {
 				this.jugador.apoyado = true;
 			} else {
 				this.jugador.apoyado = false;
 			}
 			
-//			if(entorno.estaPresionada(entorno.TECLA_ARRIBA)) {
-//				jugador.moverArriba();
-//			}
-//			if(entorno.estaPresionada(entorno.TECLA_ABAJO)) {
-//				jugador.moverAbajo();
-//			}
+			if(jugador.seCayoJugador()) {
+				jugador = null;
+			}
+			
 			//Movimiento del enemigo hacia el jugador
 //			enemigo.moverHaciaJugador(jugador);
 //			//Dibujar
@@ -86,13 +93,17 @@ public class Juego extends InterfaceJuego
 //			}
 		}
 		
+		
+		//si el jugador es null se tomara como que muerió
 		if(jugador== null) {
-			entorno.escribirTexto("El jugador se destruyo!!" , 500, 100);	
+			entorno.cambiarFont("Arial", 30, Color.WHITE);
+			entorno.escribirTexto("MORISTE" , 330, 200);
+			entorno.escribirTexto("Apreta espacio para reaparecer" , 200, 300);
 		}
 		
+		//crea de nuevo al jugador para no tener que reiniciar el juego
 		if(jugador==null && entorno.estaPresionada(entorno.TECLA_ESPACIO)){
-			jugador=new Jugador(500.0,500.0, entorno);
-			enemigo = new Enemigo(200,100);
+			jugador=new Jugador(300.0,100.0, entorno);
 		}
 	
 		
@@ -101,6 +112,16 @@ public class Juego extends InterfaceJuego
 	}
 	
 	
+
+	private void salto() { // si el jugador toca la arriba y esta tocando el piso se guarda el momento en el que lo hizo
+		if(this.entorno.sePresiono(entorno.TECLA_ARRIBA) && estaApoyado(jugador, islas)) {
+			this.momentoDeSalto = entorno.tiempo();
+			jugador.saltando = true;
+		}
+		
+	}
+
+	//retorna true si el jugador se encuentra pisando una isla del arreglo, retorna false de lo contrario
 	public boolean estaApoyado(Jugador j, Isla[] i) {
 		for(Isla islas: i) {
 			if(estaApoyado(j,islas)) {
@@ -110,18 +131,21 @@ public class Juego extends InterfaceJuego
 		return false;
 	}
 	
+	
+	//retorna true si el jugador esta pisando la isla
 	public boolean estaApoyado(Jugador j, Isla i) {
 		return Math.abs(j.getBorderInferior()-i.getBorderSuperior())<2 && (j.getBorderIzquierdo()<i.getBorderDerecho()) && 
 				(j.getBorderDerecho()>i.getBorderIzquierdo());
 	}
 	
-	public boolean colision(Jugador n, Enemigo e, double d) {
-		return (n.getX()-e.getX())*(n.getX()-e.getX())+(n.getY()-e.getY())*(n.getY()-e.getY())<d*d;
-	}
+
 	
 	@SuppressWarnings("unused")
 	public static void main(String[] args)
 	{
 		Juego juego = new Juego();
 	}
+
+
+	
 }
