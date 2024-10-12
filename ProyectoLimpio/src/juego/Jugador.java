@@ -37,6 +37,7 @@ public class Jugador{
 	
 	
 	public void moverIzquierda() {
+		this.direccion = true;
 		if(getBorderIzquierdo() <0) { //si se choca con el borde para
 			this.x = this.ancho/2-1;
 		} else {
@@ -44,6 +45,7 @@ public class Jugador{
 		}
 	}
 	public void moverDerecha() {//si se choca con el borde para
+		this.direccion = false;
 		if(getBorderDerecho() > this.e.ancho()) {
 			this.x = (this.e.ancho() - this.ancho/2)+2;
 		} else {

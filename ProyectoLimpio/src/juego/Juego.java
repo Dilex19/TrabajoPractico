@@ -11,7 +11,8 @@ public class Juego extends InterfaceJuego
 	// El objeto Entorno que controla el tiempo y otros
 	private Entorno entorno;
 	private Jugador jugador;
-	private Enemigo enemigo;
+//	private Enemigo enemigo;
+	private Tortuga tortuga;
 	private Isla[] islas;
 	private int momentoDeSalto;
 	// Variables y métodos propios de cada grupo
@@ -22,6 +23,7 @@ public class Juego extends InterfaceJuego
 		// Inicializa el objeto entorno
 		this.entorno = new Entorno(this, "Proyecto para TP", 800, 600);
 		this.jugador = new Jugador(300.0,100.0, entorno);
+		this.tortuga = new Tortuga(entorno);
 //		this.enemigo = new Enemigo(100,100);
 		this.islas = new Isla[15];
 		int k = 0;
@@ -53,6 +55,30 @@ public class Juego extends InterfaceJuego
 			for(Isla is: this.islas) {
 				is.dibujar();
 			}
+			tortuga.dibujar();
+			tortuga.gravedad();
+			
+			if(!tortuga.direccionAleatoria) {
+				if(estaApoyado(tortuga, islas)) {
+					this.tortuga.apoyado = true;
+					double x =  Math.random();
+					if(x > 0.5) {
+						tortuga.direccion = true;
+					} else {
+						tortuga.direccion = false;
+					}
+					tortuga.direccionAleatoria = true;
+				} else {
+					this.tortuga.apoyado = false;
+				}
+			}
+			
+			
+			if(estaAlBorde(tortuga, islas)) {
+				tortuga.direccion = !tortuga.direccion;
+			}
+			tortuga.movimientoX();
+			
 			
 			jugador.dibujar();
 			if(entorno.estaPresionada(entorno.TECLA_IZQUIERDA)) {
@@ -110,6 +136,19 @@ public class Juego extends InterfaceJuego
 	}
 	
 	
+	private boolean estaAlBorde(Tortuga t, Isla[] i) {
+		for(Isla islas: i) {
+			if(estaAlBorde(t,islas)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean estaAlBorde(Tortuga t, Isla islas2) {
+		return (t.getBorderDerecho() >islas2.getBorderDerecho()) && (t.getBorderIzquierdo() > islas2.getBorderInferior());
+	}
+
 	// si el jugador toca la arriba y esta tocando el piso se guarda el momento en el que lo hizo
 	private void salto() { 
 		if(this.entorno.sePresiono(entorno.TECLA_ARRIBA) && estaApoyado(jugador, islas)) {
@@ -136,6 +175,21 @@ public class Juego extends InterfaceJuego
 				(j.getBorderDerecho()>i.getBorderIzquierdo());
 	}
 	
+	//retorna true si la tortuga esta pisando la isla
+	public boolean estaApoyado(Tortuga j, Isla i) {
+		return Math.abs(j.getBorderInferior()-i.getBorderSuperior())<1 && (j.getBorderIzquierdo()<i.getBorderDerecho()) && 
+				(j.getBorderDerecho()>i.getBorderIzquierdo());
+	}
+	
+	//retorna true si la Totuga se encuentra pisando una isla del arreglo, retorna false de lo contrario
+	public boolean estaApoyado(Tortuga j, Isla[] i) {
+		for(Isla islas: i) {
+			if(estaApoyado(j,islas)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	
 	@SuppressWarnings("unused")
