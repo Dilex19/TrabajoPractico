@@ -112,6 +112,10 @@ public class Jugador{
 		this.y = y;
 	}
 	
+	public boolean getDireccion() {
+		return direccion;
+	}
+	
 	public void recibirDaño(int daño) {this.vida -=daño;}
 
 

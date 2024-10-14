@@ -15,6 +15,7 @@ public class Juego extends InterfaceJuego
 	private Tortuga[] tortugas;
 	private Isla[] islas;
 	private int momentoDeSalto;
+	private Ataque[] ataques;
 	// Variables y métodos propios de cada grupo
 	// ...
 	
@@ -33,6 +34,7 @@ public class Juego extends InterfaceJuego
 		
 		this.tortugas = new Tortuga[100];
 		this.tortugas[0] = new Tortuga(entorno);
+		this.ataques = new Ataque[50];
 		// Inicializar lo que haga falta para el juego
 		// ...
 
@@ -63,7 +65,7 @@ public class Juego extends InterfaceJuego
 					tor.dibujar();
 					tor.gravedad();
 					
-					if(!tor.direccionAleatoria) {
+					if(!tor.direccionAleatoria) { // cuando la tortuga toca una isla, elige aleatoriamente si ir a la izquierda o derecha
 						if(estaApoyado(tor, islas)) {
 							tor.apoyado = true;
 							double x =  Math.random();
@@ -78,11 +80,11 @@ public class Juego extends InterfaceJuego
 						}
 					}
 					
-					Isla islaDeLaTortuga = islaDeLaTortuga(tor, this.islas);
-					if(estaAlBordeDerecho(tor, islaDeLaTortuga)) {
+					Isla islaDeLaTortuga = islaDeLaTortuga(tor, this.islas); // guarda la isla en la que esta la tortuga
+					if(estaAlBordeDerecho(tor, islaDeLaTortuga)) { // si esta al borde derecho da la vuelta a la izquierda
 						tor.direccion = false;
 					}
-					if(estaAlBordeIzquierdo(tor, islaDeLaTortuga)) {
+					if(estaAlBordeIzquierdo(tor, islaDeLaTortuga)) { // si esta al borde izquierdo da la vuelta a la derecha
 						tor.direccion = true;
 					}
 					if(estaApoyado(tor, islas)) {
@@ -91,7 +93,13 @@ public class Juego extends InterfaceJuego
 				}
 			}
 			
-			
+			if(entorno.sePresiono(entorno.TECLA_ESPACIO)) { // tecla para tirar un ataque
+				nuevoAtaque(ataques);
+			}
+			for (int i =0; i<ataques.length;i++) { //mueve el ataque al lado para el que fue lanzado
+				if (ataques[i] != null) {
+					ataques[i].movimientoX();					}
+			}
 			
 			jugador.dibujar();
 			if(entorno.estaPresionada(entorno.TECLA_IZQUIERDA)) {
@@ -100,6 +108,7 @@ public class Juego extends InterfaceJuego
 			if(entorno.estaPresionada(entorno.TECLA_DERECHA)) {
 				jugador.moverDerecha();
 			}
+			
 			
 			salto(); //funcion que toma en cuenta cuando el jugador quiere dar un salto
 			if(jugador.saltando) { //si el jugador esta saltando subira por cierto periodo de tiempo
@@ -149,9 +158,22 @@ public class Juego extends InterfaceJuego
 	}
 	
 	
-	private void nuevaTortuga(Tortuga[] tortu) {
+	
+	
+	private void nuevoAtaque(Ataque[] ata) {
+		for(int i= 0; i<ata.length;i++) { //Tratar de usar el otro tipo de FOR (no me salio)
+			if(ata[i] == null) {
+				ata[i] = new Ataque(jugador,entorno);
+				return;
+			}
+		}
+	}
+	
+	
+	
+	private void nuevaTortuga(Tortuga[] tortu) { //rellena los espaciocios nulos del arreglo de tortugas para crear una nueva tortuga
 		if(entorno.numeroDeTick()%300== 0) {
-			for(int i= 0; i<tortu.length;i++) {
+			for(int i= 0; i<tortu.length;i++) { //Tratar de usar el otro tipo de FOR (no me salio)
 				if(tortu[i] == null) {
 					tortu[i] = new Tortuga(entorno);
 					return;
