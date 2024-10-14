@@ -53,7 +53,7 @@ public class Tortuga {
 	//Elige unas coordenadas aleatorioas din contar el "medio"
 	private int spawnRandom(Entorno e) {
 		int x = (int) (Math.random() * e.ancho());
-		while(x <450 && x >300) {
+		while(x <480 && x >320) {
 			x = (int) (Math.random() * e.ancho());
 		}
 		return x;

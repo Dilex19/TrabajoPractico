@@ -12,7 +12,7 @@ public class Juego extends InterfaceJuego
 	private Entorno entorno;
 	private Jugador jugador;
 //	private Enemigo enemigo;
-	private Tortuga tortuga;
+	private Tortuga[] tortugas;
 	private Isla[] islas;
 	private int momentoDeSalto;
 	// Variables y métodos propios de cada grupo
@@ -23,8 +23,6 @@ public class Juego extends InterfaceJuego
 		// Inicializa el objeto entorno
 		this.entorno = new Entorno(this, "Proyecto para TP", 800, 600);
 		this.jugador = new Jugador(300.0,100.0, entorno);
-		this.tortuga = new Tortuga(entorno);
-//		this.enemigo = new Enemigo(100,100);
 		this.islas = new Isla[15];
 		int k = 0;
 		for(int i = 1; i<6;i++) {
@@ -32,6 +30,9 @@ public class Juego extends InterfaceJuego
 				islas[k++] = new Isla((j)*this.entorno.ancho()/(i+1), 100*i, entorno,1.0/(i+2));
 			}
 		}
+		
+		this.tortugas = new Tortuga[100];
+		this.tortugas[0] = new Tortuga(entorno);
 		// Inicializar lo que haga falta para el juego
 		// ...
 
@@ -55,34 +56,41 @@ public class Juego extends InterfaceJuego
 			for(Isla is: this.islas) {
 				is.dibujar();
 			}
-			tortuga.dibujar();
-			tortuga.gravedad();
 			
-			if(!tortuga.direccionAleatoria) {
-				if(estaApoyado(tortuga, islas)) {
-					this.tortuga.apoyado = true;
-					double x =  Math.random();
-					if(x > 0.5) {
-						tortuga.direccion = true;
-					} else {
-						tortuga.direccion = false;
+			nuevaTortuga(tortugas);
+			for(Tortuga tor: this.tortugas) {
+				if(tor != null) {
+					tor.dibujar();
+					tor.gravedad();
+					
+					if(!tor.direccionAleatoria) {
+						if(estaApoyado(tor, islas)) {
+							tor.apoyado = true;
+							double x =  Math.random();
+							if(x > 0.5) {
+								tor.direccion = true;
+							} else {
+								tor.direccion = false;
+							}
+							tor.direccionAleatoria = true;
+						} else {
+							tor.apoyado = false;
+						}
 					}
-					tortuga.direccionAleatoria = true;
-				} else {
-					this.tortuga.apoyado = false;
+					
+					Isla islaDeLaTortuga = islaDeLaTortuga(tor, this.islas);
+					if(estaAlBordeDerecho(tor, islaDeLaTortuga)) {
+						tor.direccion = false;
+					}
+					if(estaAlBordeIzquierdo(tor, islaDeLaTortuga)) {
+						tor.direccion = true;
+					}
+					if(estaApoyado(tor, islas)) {
+						tor.movimientoX();
+						}
 				}
 			}
 			
-			Isla islaDeLaTortuga = islaDeLaTortuga(this.tortuga, this.islas);
-			if(estaAlBordeDerecho(tortuga, islaDeLaTortuga)) {
-				tortuga.direccion = false;
-			}
-			if(estaAlBordeIzquierdo(tortuga, islaDeLaTortuga)) {
-				tortuga.direccion = true;
-			}
-			if(estaApoyado(tortuga, islas)) {
-				tortuga.movimientoX();
-				}
 			
 			
 			jugador.dibujar();
@@ -141,6 +149,18 @@ public class Juego extends InterfaceJuego
 	}
 	
 	
+	private void nuevaTortuga(Tortuga[] tortu) {
+		if(entorno.numeroDeTick()%300== 0) {
+			for(int i= 0; i<tortu.length;i++) {
+				if(tortu[i] == null) {
+					tortu[i] = new Tortuga(entorno);
+					return;
+				}
+			}
+		}
+		
+	}
+
 	public Isla islaDeLaTortuga(Tortuga t, Isla[] i) { // esta funcion sirve si y solo si la tortuga esta apoyada en una isla
 		Isla is = islas[1];
 		for(Isla islas: i) {
