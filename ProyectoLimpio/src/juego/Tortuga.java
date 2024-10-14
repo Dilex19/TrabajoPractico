@@ -6,7 +6,7 @@ import entorno.Entorno;
 
 public class Tortuga {
 	private double x,y;
-	private int velocidad;
+	private double velocidad;
 	private double ancho;
 	private double alto;
 	private double escala;
@@ -23,7 +23,7 @@ public class Tortuga {
 		this.e = e;
 		this.direccion = false;
 		this.direccionAleatoria = false;
-		this.velocidad = 2;
+		this.velocidad = 0.5;
 		this.escala =0.1;
 		this.Izq = entorno.Herramientas.cargarImagen("Rojo.png");
 		this.Der = entorno.Herramientas.cargarImagen("Rojo.png");

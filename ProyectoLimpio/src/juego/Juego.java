@@ -73,11 +73,16 @@ public class Juego extends InterfaceJuego
 				}
 			}
 			
-			
-			if(estaAlBorde(tortuga, islas)) {
-				tortuga.direccion = !tortuga.direccion;
+			Isla islaDeLaTortuga = islaDeLaTortuga(this.tortuga, this.islas);
+			if(estaAlBordeDerecho(tortuga, islaDeLaTortuga)) {
+				tortuga.direccion = false;
 			}
-			tortuga.movimientoX();
+			if(estaAlBordeIzquierdo(tortuga, islaDeLaTortuga)) {
+				tortuga.direccion = true;
+			}
+			if(estaApoyado(tortuga, islas)) {
+				tortuga.movimientoX();
+				}
 			
 			
 			jugador.dibujar();
@@ -136,19 +141,32 @@ public class Juego extends InterfaceJuego
 	}
 	
 	
-	private boolean estaAlBorde(Tortuga t, Isla[] i) {
+	public Isla islaDeLaTortuga(Tortuga t, Isla[] i) { // esta funcion sirve si y solo si la tortuga esta apoyada en una isla
+		Isla is = islas[1];
 		for(Isla islas: i) {
-			if(estaAlBorde(t,islas)) {
-				return true;
+			if(estaEnLaIsla(t,islas)) {
+				is =  islas;
 			}
+		}
+		return is;
+	}
+	
+	private boolean estaEnLaIsla(Tortuga t, Isla i) {
+		if(Math.abs(t.getBorderInferior()-i.getBorderSuperior())<1 && (t.getBorderIzquierdo()<i.getBorderDerecho()) && 
+				(t.getBorderDerecho()>i.getBorderIzquierdo())) {
+			return true;
 		}
 		return false;
 	}
 
-	private boolean estaAlBorde(Tortuga t, Isla islas2) {
-		return (t.getBorderDerecho() >islas2.getBorderDerecho()) && (t.getBorderIzquierdo() > islas2.getBorderInferior());
+
+	private boolean estaAlBordeDerecho(Tortuga t, Isla islas2) {
+		return (t.getBorderDerecho() >islas2.getBorderDerecho());
 	}
 
+	private boolean estaAlBordeIzquierdo(Tortuga t, Isla islas2) {
+		return (t.getBorderIzquierdo() <islas2.getBorderIzquierdo());
+	}
 	// si el jugador toca la arriba y esta tocando el piso se guarda el momento en el que lo hizo
 	private void salto() { 
 		if(this.entorno.sePresiono(entorno.TECLA_ARRIBA) && estaApoyado(jugador, islas)) {
@@ -176,9 +194,9 @@ public class Juego extends InterfaceJuego
 	}
 	
 	//retorna true si la tortuga esta pisando la isla
-	public boolean estaApoyado(Tortuga j, Isla i) {
-		return Math.abs(j.getBorderInferior()-i.getBorderSuperior())<1 && (j.getBorderIzquierdo()<i.getBorderDerecho()) && 
-				(j.getBorderDerecho()>i.getBorderIzquierdo());
+	public boolean estaApoyado(Tortuga t, Isla i) {
+		return Math.abs(t.getBorderInferior()-i.getBorderSuperior())<1 && (t.getBorderIzquierdo()<i.getBorderDerecho()) && 
+				(t.getBorderDerecho()>i.getBorderIzquierdo());
 	}
 	
 	//retorna true si la Totuga se encuentra pisando una isla del arreglo, retorna false de lo contrario
