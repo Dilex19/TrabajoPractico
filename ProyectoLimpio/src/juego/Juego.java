@@ -32,9 +32,8 @@ public class Juego extends InterfaceJuego
 			}
 		}
 		
-		this.tortugas = new Tortuga[100];
-		this.tortugas[0] = new Tortuga(entorno);
-		this.ataques = new Ataque[50];
+		this.tortugas = new Tortuga[10];
+		this.ataques = new Ataque[10];
 		// Inicializar lo que haga falta para el juego
 		// ...
 
@@ -92,6 +91,15 @@ public class Juego extends InterfaceJuego
 						}
 				}
 			}
+			
+			tortugaMuere(tortugas,ataques); //si una bola de fuego choca con una tortuga, estos desaparecen, osea, se vuelven null
+			
+			
+			ataqueFueraDePantalla(ataques); //si una bola de fuego sale de la pantalla esta se vuelve null
+			
+			
+			
+			
 			
 			if(entorno.sePresiono(entorno.TECLA_ESPACIO)) { // tecla para tirar un ataque
 				nuevoAtaque(ataques);
@@ -159,6 +167,32 @@ public class Juego extends InterfaceJuego
 	
 	
 	
+	private void ataqueFueraDePantalla(Ataque[] ata) {
+		for(int i= 0; i<ata.length;i++) { //Tratar de usar el otro tipo de FOR (no me salio)
+			if(ata[i] != null && (ata[i].getBorderDerecho()> this.entorno.ancho() || ata[i].getBorderIzquierdo() <0)) {
+				ata[i] = null;
+			} 
+		}
+		
+	}
+
+	private void tortugaMuere(Tortuga[] t, Ataque[] ata) { //si una bola de fuego choca con una tortuga, estos desaparecen, osea, se vuelven null
+		for(int j = 0; j<t.length;j++) {
+			for(int i= 0; i<ata.length;i++) { 
+				if(t[j] !=null) {
+					if(ata[i] != null && ( (ata[i].getBorderDerecho() > t[j].getBorderIzquierdo() && ata[i].getBorderIzquierdo() <t[j].getBorderIzquierdo() ) 
+							|| (ata[i].getBorderIzquierdo() <t[j].getBorderDerecho() &&
+							ata[i].getBorderDerecho() > t[j].getBorderDerecho())) && 
+							ata[i].getBorderInferior() >=t[j].getBorderSuperior() && ata[i].getBorderSuperior()<=t[j].getBorderInferior() ) {
+						ata[i]= null;
+						t[j]=null;
+					}
+				}
+			}
+		}
+	}
+	
+	
 	
 	private void nuevoAtaque(Ataque[] ata) {
 		for(int i= 0; i<ata.length;i++) { //Tratar de usar el otro tipo de FOR (no me salio)
@@ -172,7 +206,7 @@ public class Juego extends InterfaceJuego
 	
 	
 	private void nuevaTortuga(Tortuga[] tortu) { //rellena los espaciocios nulos del arreglo de tortugas para crear una nueva tortuga
-		if(entorno.numeroDeTick()%300== 0) {
+		if(entorno.numeroDeTick()%300== 0 || entorno.numeroDeTick() == 0) {
 			for(int i= 0; i<tortu.length;i++) { //Tratar de usar el otro tipo de FOR (no me salio)
 				if(tortu[i] == null) {
 					tortu[i] = new Tortuga(entorno);

@@ -5,7 +5,7 @@ import java.awt.Image;
 import entorno.Entorno;
 
 public class Tortuga {
-	private double x,y;
+	double x,y;
 	private double velocidad;
 	private double ancho;
 	private double alto;
