@@ -19,6 +19,7 @@ public class Juego extends InterfaceJuego
 	private Ataque[] ataques;
 	private Bomba[] bombas;
 	private Image fondoCielo;
+	private Image fondoMuerte;
 	// Variables y métodos propios de cada grupo
 	// ...
 	
@@ -43,7 +44,7 @@ public class Juego extends InterfaceJuego
 		this.tortugas = new Tortuga[10];
 		this.ataques = new Ataque[10];
 		this.fondoCielo = entorno.Herramientas.cargarImagen("cieloPrueba.png");
-		
+		this.fondoMuerte = entorno.Herramientas.cargarImagen("die.jpg");
 		// Inicializar lo que haga falta para el juego
 		// ...
 
@@ -171,9 +172,7 @@ public class Juego extends InterfaceJuego
 		
 		//si el jugador es null se tomara como que muerió
 		if(jugador== null) {
-			entor.cambiarFont("Arial", 30, Color.WHITE);
-			entor.escribirTexto("MORISTE" , 330, 200);
-			entor.escribirTexto("Apreta espacio para reaparecer" , 200, 300);
+			this.entor.dibujarImagen(fondoMuerte, 390, 280, 0, 1);
 		}
 		
 		//crea de nuevo al jugador para no tener que reiniciar el juego
@@ -221,9 +220,18 @@ public class Juego extends InterfaceJuego
 		}
 	}
 
+	private void bombaFueraDePantalla(Bomba[] bom) {
+		for(int i= 0; i<bom.length;i++) { //Tratar de usar el otro tipo de FOR (no me salio)
+			if(bom[i] != null && (bom[i].getBorderIzquierdo()> this.entor.ancho() || bom[i].getBorderDerecho() <0)) {
+				bom[i] = null;
+			} 
+		}
+		
+	}
+		
 	private void ataqueFueraDePantalla(Ataque[] ata) {
 		for(int i= 0; i<ata.length;i++) { //Tratar de usar el otro tipo de FOR (no me salio)
-			if(ata[i] != null && (ata[i].getBorderDerecho()> this.entor.ancho() || ata[i].getBorderIzquierdo() <0)) {
+			if(ata[i] != null && (ata[i].getBorderIzquierdo()> this.entor.ancho() || ata[i].getBorderDerecho() <0)) {
 				ata[i] = null;
 			} 
 		}
