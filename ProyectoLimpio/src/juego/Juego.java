@@ -63,6 +63,12 @@ public class Juego extends InterfaceJuego
 		// Procesamiento de un instante de tiempo
 		// ...
 		
+		//si el jugador es null se tomara como que muerió
+				if(jugador== null) {
+					this.entor.dibujarImagen(fondoMuerte, 390, 280, 0, 1);
+				}
+		
+		
 		if(jugador != null) {
 			
 			this.entor.dibujarImagen(this.fondoCielo, 0, 150, 0, 1);
@@ -170,10 +176,7 @@ public class Juego extends InterfaceJuego
 		}
 		
 		
-		//si el jugador es null se tomara como que muerió
-		if(jugador== null) {
-			this.entor.dibujarImagen(fondoMuerte, 390, 280, 0, 1);
-		}
+		
 		
 		//crea de nuevo al jugador para no tener que reiniciar el juego
 		if(jugador==null && entor.estaPresionada(entor.TECLA_ESPACIO)){
