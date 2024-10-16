@@ -16,10 +16,10 @@ public class Isla {
 		this.x = x;
 		this.y = y;
 		this.e = e;
-		this.escala = escala+0.2;
-		this.isla = entorno.Herramientas.cargarImagen("islaVerde.png");
-		this.alto = this.isla.getHeight(null) * this.escala;
-		this.ancho = this.isla.getWidth(null) * this.escala;
+		this.escala = escala;
+		this.isla = entorno.Herramientas.cargarImagen("islaPrueba.png");
+		this.alto = this.isla.getHeight(null) * this.escala -2;
+		this.ancho = this.isla.getWidth(null) * this.escala - 10;
 	}
 
 

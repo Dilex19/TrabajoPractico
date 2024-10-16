@@ -4,40 +4,36 @@ import java.awt.Image;
 
 import entorno.Entorno;
 
-public class Ataque {
+public class Bomba {
 	private double x,y;
 	private double ancho;
 	private double alto;
 	private double escala;
-	Image Izq;
-	Image Der;
+	private Image imagen;
 	Entorno e;
-	Jugador j;
+	Tortuga t;
 	private boolean direccion;
 	
-	public Ataque(Jugador j, Entorno e) {
-		this.x = j.getX();
-		this.y = j.getY()+5;
-		this.j = j;
-		this.escala = 0.03;
+	public Bomba(Tortuga t, Entorno e) {
+		this.x = t.getX();
+		this.y = t.getY()+5;
+		this.t = t;
+		this.escala = 0.08;
 		this.e = e;
-		this.direccion = j.getDireccion();
-		this.Izq = entorno.Herramientas.cargarImagen("fuegoPrueba.png");
-		this.Der = entorno.Herramientas.cargarImagen("fuegoPrueba2.png");
-		this.alto = this.Izq.getHeight(null) * this.escala;
-		this.ancho = this.Izq.getWidth(null) * this.escala;
+		this.direccion = t.getDireccion();
+		this.imagen = entorno.Herramientas.cargarImagen("bombaPrueba.png");
+		this.alto = this.imagen.getHeight(null) * this.escala;
+		this.ancho = this.imagen.getWidth(null) * this.escala;
 		
 	}
 	
-	
 	public void movimientoX() {
 		if(this.direccion) {
-			this.x -= 4;
-			this.e.dibujarImagen(this.Der, getX(), getY(), 0, escala);
+			this.x -= 2;
 		} else {
-			this.x +=4;
-			this.e.dibujarImagen(this.Izq, getX(), getY(), 0, escala);
+			this.x +=2;
 		}
+		this.e.dibujarImagen(this.imagen, getX(), getY(), 0, escala);
 	}
 	
 
@@ -62,4 +58,5 @@ public class Ataque {
 	public double getBorderDerecho() { // retorna el borde de la parte izquierda de la imagen
 		return this.x + this.ancho/2;
 	}
+	
 }

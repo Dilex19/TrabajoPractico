@@ -27,9 +27,9 @@ public class Jugador{
 		this.direccion = false;
 		this.velocidad = 2;
 		this.vida = 100;
-		this.escala =0.2;
-		this.Izq = entorno.Herramientas.cargarImagen("azul.png");
-		this.Der = entorno.Herramientas.cargarImagen("azul.png");
+		this.escala =0.35;
+		this.Izq = entorno.Herramientas.cargarImagen("personajePrueba2.png");
+		this.Der = entorno.Herramientas.cargarImagen("personajePrueba.png");
 		this.apoyado = false;
 		this.alto = this.Izq.getHeight(null) * this.escala;
 		this.ancho = this.Izq.getWidth(null) * this.escala;

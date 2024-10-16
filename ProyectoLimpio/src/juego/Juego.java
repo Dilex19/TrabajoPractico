@@ -2,6 +2,7 @@ package juego;
 
 
 import java.awt.Color;
+import java.awt.Image;
 
 import entorno.Entorno;
 import entorno.InterfaceJuego;
@@ -9,36 +10,45 @@ import entorno.InterfaceJuego;
 public class Juego extends InterfaceJuego
 {
 	// El objeto Entorno que controla el tiempo y otros
-	private Entorno entorno;
+	private Entorno entor;
 	private Jugador jugador;
 //	private Enemigo enemigo;
 	private Tortuga[] tortugas;
 	private Isla[] islas;
 	private int momentoDeSalto;
 	private Ataque[] ataques;
+	private Bomba[] bombas;
+	private Image fondoCielo;
 	// Variables y métodos propios de cada grupo
 	// ...
 	
 	Juego()
 	{
 		// Inicializa el objeto entorno
-		this.entorno = new Entorno(this, "Proyecto para TP", 800, 600);
-		this.jugador = new Jugador(300.0,100.0, entorno);
+		this.entor = new Entorno(this, "Proyecto para TP", 800, 600);
+		this.jugador = new Jugador(270.0,455.0, entor);
 		this.islas = new Isla[15];
-		int k = 0;
+		int k = 1;
 		for(int i = 1; i<6;i++) {
-			for( int j =1; j <= i;j++) {
-				islas[k++] = new Isla((j)*this.entorno.ancho()/(i+1), 100*i, entorno,1.0/(i+2));
-			}
+			if(i==1) {
+				islas[0] = new Isla((1)*this.entor.ancho()/(1+1), 100*1, entor,0.34);
+			} else {
+				for( int j =1; j <= i;j++) {
+				islas[k++] = new Isla((j)*this.entor.ancho()/(i+1), 100*i, entor,1.3/(i+2));
+					}
+				}
 		}
 		
+		this.bombas = new Bomba[100];
 		this.tortugas = new Tortuga[10];
 		this.ataques = new Ataque[10];
+		this.fondoCielo = entorno.Herramientas.cargarImagen("cieloPrueba.png");
+		
 		// Inicializar lo que haga falta para el juego
 		// ...
 
 		// Inicia el juego!
-		this.entorno.iniciar();
+		this.entor.iniciar();
 	}
 
 	/**
@@ -53,6 +63,8 @@ public class Juego extends InterfaceJuego
 		// ...
 		
 		if(jugador != null) {
+			
+			this.entor.dibujarImagen(this.fondoCielo, 0, 150, 0, 1);
 
 			for(Isla is: this.islas) {
 				is.dibujar();
@@ -64,32 +76,43 @@ public class Juego extends InterfaceJuego
 					tor.dibujar();
 					tor.gravedad();
 					
-					if(!tor.direccionAleatoria) { // cuando la tortuga toca una isla, elige aleatoriamente si ir a la izquierda o derecha
-						if(estaApoyado(tor, islas)) {
-							tor.apoyado = true;
-							double x =  Math.random();
-							if(x > 0.5) {
-								tor.direccion = true;
-							} else {
-								tor.direccion = false;
-							}
-							tor.direccionAleatoria = true;
+					double random =  Math.random();
+					
+					boolean tortugaApoyadoEnIsla = estaApoyado(tor, islas);
+					
+					if(tortugaApoyadoEnIsla && (tor.apoyado == false)) {
+						tor.apoyado = true;
+						if(random > 0.5) {
+							tor.direccion = true;
 						} else {
+							tor.direccion = false;
+						}
+						} 
+					if(!tortugaApoyadoEnIsla) {
 							tor.apoyado = false;
 						}
-					}
 					
 					Isla islaDeLaTortuga = islaDeLaTortuga(tor, this.islas); // guarda la isla en la que esta la tortuga
-					if(estaAlBordeDerecho(tor, islaDeLaTortuga)) { // si esta al borde derecho da la vuelta a la izquierda
-						tor.direccion = false;
+					
+					
+					tortugasRebote(tor,islaDeLaTortuga); //si la tortuga llega a un borde, cambia de dirreccion
+					
+					
+					if(random >= 0.998 && tortugaApoyadoEnIsla) {
+						tirarBomba(bombas,tor);
 					}
-					if(estaAlBordeIzquierdo(tor, islaDeLaTortuga)) { // si esta al borde izquierdo da la vuelta a la derecha
-						tor.direccion = true;
-					}
-					if(estaApoyado(tor, islas)) {
+					
+					
+					if(tortugaApoyadoEnIsla) {
 						tor.movimientoX();
 						}
 				}
+			}
+			
+			for (Bomba bom: this.bombas) { //mueve el ataque al lado para el que fue lanzado
+				if (bom != null) {
+					bom.movimientoX();					
+					}
 			}
 			
 			tortugaMuere(tortugas,ataques); //si una bola de fuego choca con una tortuga, estos desaparecen, osea, se vuelven null
@@ -101,7 +124,7 @@ public class Juego extends InterfaceJuego
 			
 			
 			
-			if(entorno.sePresiono(entorno.TECLA_ESPACIO)) { // tecla para tirar un ataque
+			if(entor.sePresiono(entor.TECLA_ESPACIO)) { // tecla para tirar un ataque
 				nuevoAtaque(ataques);
 			}
 			for (int i =0; i<ataques.length;i++) { //mueve el ataque al lado para el que fue lanzado
@@ -110,17 +133,17 @@ public class Juego extends InterfaceJuego
 			}
 			
 			jugador.dibujar();
-			if(entorno.estaPresionada(entorno.TECLA_IZQUIERDA)) {
+			if(entor.estaPresionada(entor.TECLA_IZQUIERDA)) {
 				jugador.moverIzquierda();
 			}
-			if(entorno.estaPresionada(entorno.TECLA_DERECHA)) {
+			if(entor.estaPresionada(entor.TECLA_DERECHA)) {
 				jugador.moverDerecha();
 			}
 			
 			
 			salto(); //funcion que toma en cuenta cuando el jugador quiere dar un salto
 			if(jugador.saltando) { //si el jugador esta saltando subira por cierto periodo de tiempo
-				jugador.saltando(momentoDeSalto, entorno.tiempo());
+				jugador.saltando(momentoDeSalto, entor.tiempo());
 			}
 			
 			//Caida del jugador
@@ -133,31 +156,29 @@ public class Juego extends InterfaceJuego
 				this.jugador.apoyado = false;
 			}
 			
-			if(jugador.seCayoJugador()) {
+			
+			
+			if(jugador.seCayoJugador() || tortugaColicionJugador(tortugas,jugador) || colisionBombaJugador(bombas,jugador)) {
 				jugador = null;
+			} else {
+				if(tortugaColicionJugador(tortugas,jugador)) {
+						jugador=null;
+				}
 			}
 			
-			//Movimiento del enemigo hacia el jugador
-//			enemigo.moverHaciaJugador(jugador);
-//			//Dibujar
-//			enemigo.dibujar(entorno);
-//			if(colision(jugador, enemigo,30)){
-//				jugador=null;
-//				System.out.println("colision!!!!");
-//			}
 		}
 		
 		
 		//si el jugador es null se tomara como que muerió
 		if(jugador== null) {
-			entorno.cambiarFont("Arial", 30, Color.WHITE);
-			entorno.escribirTexto("MORISTE" , 330, 200);
-			entorno.escribirTexto("Apreta espacio para reaparecer" , 200, 300);
+			entor.cambiarFont("Arial", 30, Color.WHITE);
+			entor.escribirTexto("MORISTE" , 330, 200);
+			entor.escribirTexto("Apreta espacio para reaparecer" , 200, 300);
 		}
 		
 		//crea de nuevo al jugador para no tener que reiniciar el juego
-		if(jugador==null && entorno.estaPresionada(entorno.TECLA_ESPACIO)){
-			jugador=new Jugador(300.0,100.0, entorno);
+		if(jugador==null && entor.estaPresionada(entor.TECLA_ESPACIO)){
+			jugador=new Jugador(270.0,455.0, entor);
 		}
 	
 		
@@ -167,9 +188,42 @@ public class Juego extends InterfaceJuego
 	
 	
 	
+	private boolean colisionBombaJugador(Bomba[] bomba, Jugador jugador2) {
+		for(Bomba b: bombas) {
+			if((jugador != null && b != null) && ( (jugador.getBorderDerecho() > b.getBorderIzquierdo() && jugador.getBorderIzquierdo() <b.getBorderIzquierdo() ) 
+					|| (jugador.getBorderIzquierdo() <b.getBorderDerecho() &&
+					jugador.getBorderDerecho() > b.getBorderDerecho())) && 
+					jugador.getBorderInferior() >b.getBorderSuperior() && jugador.getBorderSuperior()<b.getBorderInferior() ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean tortugaColicionJugador(Tortuga[] tortugas, Jugador jugador) {
+		for(Tortuga t: this.tortugas) {
+			if((jugador != null && t != null) && ( (jugador.getBorderDerecho() > t.getBorderIzquierdo() && jugador.getBorderIzquierdo() <t.getBorderIzquierdo() ) 
+					|| (jugador.getBorderIzquierdo() <t.getBorderDerecho() &&
+					jugador.getBorderDerecho() > t.getBorderDerecho())) && 
+					jugador.getBorderInferior() >t.getBorderSuperior() && jugador.getBorderSuperior()<t.getBorderInferior() ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void tortugasRebote(Tortuga tor, Isla islaDeLaTortuga) {
+		if(estaAlBordeDerecho(tor, islaDeLaTortuga)) { // si esta al borde derecho da la vuelta a la izquierda
+			tor.direccion = false;
+		}
+		if(estaAlBordeIzquierdo(tor, islaDeLaTortuga)) { // si esta al borde izquierdo da la vuelta a la derecha
+			tor.direccion = true;
+		}
+	}
+
 	private void ataqueFueraDePantalla(Ataque[] ata) {
 		for(int i= 0; i<ata.length;i++) { //Tratar de usar el otro tipo de FOR (no me salio)
-			if(ata[i] != null && (ata[i].getBorderDerecho()> this.entorno.ancho() || ata[i].getBorderIzquierdo() <0)) {
+			if(ata[i] != null && (ata[i].getBorderDerecho()> this.entor.ancho() || ata[i].getBorderIzquierdo() <0)) {
 				ata[i] = null;
 			} 
 		}
@@ -197,7 +251,7 @@ public class Juego extends InterfaceJuego
 	private void nuevoAtaque(Ataque[] ata) {
 		for(int i= 0; i<ata.length;i++) { //Tratar de usar el otro tipo de FOR (no me salio)
 			if(ata[i] == null) {
-				ata[i] = new Ataque(jugador,entorno);
+				ata[i] = new Ataque(jugador,entor);
 				return;
 			}
 		}
@@ -206,10 +260,10 @@ public class Juego extends InterfaceJuego
 	
 	
 	private void nuevaTortuga(Tortuga[] tortu) { //rellena los espaciocios nulos del arreglo de tortugas para crear una nueva tortuga
-		if(entorno.numeroDeTick()%300== 0 || entorno.numeroDeTick() == 0) {
+		if(entor.numeroDeTick()%300== 0 || entor.numeroDeTick() == 0) {
 			for(int i= 0; i<tortu.length;i++) { //Tratar de usar el otro tipo de FOR (no me salio)
 				if(tortu[i] == null) {
-					tortu[i] = new Tortuga(entorno);
+					tortu[i] = new Tortuga(entor);
 					return;
 				}
 			}
@@ -245,8 +299,8 @@ public class Juego extends InterfaceJuego
 	}
 	// si el jugador toca la arriba y esta tocando el piso se guarda el momento en el que lo hizo
 	private void salto() { 
-		if(this.entorno.sePresiono(entorno.TECLA_ARRIBA) && estaApoyado(jugador, islas)) {
-			this.momentoDeSalto = entorno.tiempo();
+		if(this.entor.sePresiono(entor.TECLA_ARRIBA) && estaApoyado(jugador, islas)) {
+			this.momentoDeSalto = entor.tiempo();
 			jugador.saltando = true;
 		}
 		
@@ -284,7 +338,16 @@ public class Juego extends InterfaceJuego
 		}
 		return false;
 	}
-
+	
+	
+	private void tirarBomba(Bomba[] bom, Tortuga tor) {
+		for(int i= 0; i<bom.length;i++) { //Tratar de usar el otro tipo de FOR (no me salio)
+			if(bom[i] == null) {
+				bom[i] = new Bomba(tor,entor);
+				return;
+			}
+		}
+	}
 	
 	@SuppressWarnings("unused")
 	public static void main(String[] args)

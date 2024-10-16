@@ -15,18 +15,18 @@ public class Tortuga {
 	Image Izq;
 	Image Der;
 	boolean apoyado;
-	boolean direccionAleatoria;
+//	boolean direccionAleatoria;
 	
 	public Tortuga(Entorno e) {
 		this.x = spawnRandom(e);
 		this.y = -20;
 		this.e = e;
 		this.direccion = false;
-		this.direccionAleatoria = false;
+//		this.direccionAleatoria = false;
 		this.velocidad = 0.5;
-		this.escala =0.1;
-		this.Izq = entorno.Herramientas.cargarImagen("Rojo.png");
-		this.Der = entorno.Herramientas.cargarImagen("Rojo.png");
+		this.escala =0.09;
+		this.Izq = entorno.Herramientas.cargarImagen("enemigoPrueba.png");
+		this.Der = entorno.Herramientas.cargarImagen("enemigoPrueba.png");
 		this.apoyado = false;
 		this.alto = this.Izq.getHeight(null) * this.escala;
 		this.ancho = this.Izq.getWidth(null) * this.escala;
@@ -59,7 +59,16 @@ public class Tortuga {
 		return x;
 	}
 
-
+	
+	public void movimientoX() {
+		if (this.direccion) {
+			this.x +=velocidad;
+		} else {
+			this.x -=velocidad;
+		}
+	}
+	
+	
 
 	public double getBorderSuperior() { // retorna el borde de la parte superior de la imagen
 		return this.y - this.alto/2;
@@ -82,12 +91,8 @@ public class Tortuga {
 		return y;
 	}
 
-
-	public void movimientoX() {
-		if (this.direccion) {
-			this.x +=velocidad;
-		} else {
-			this.x -=velocidad;
-		}
+	public boolean getDireccion() {
+		return direccion;
 	}
+	
 }
