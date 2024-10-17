@@ -56,7 +56,7 @@ public class Jugador{
 	//el jugador caera simulando gravedad
 	public void gravedad() {
 		if(!apoyado) {
-			this.y+=2;
+			this.y+=5;
 		}
 	}
 //	public void moverArriba() {this.y -=velocidad;}
@@ -76,7 +76,7 @@ public class Jugador{
 	//El jugador subira por 300 milisegundos que dura el salto
 	public void saltando(int momentoDeSalto, int i) {
 		if(i- momentoDeSalto < 300) {
-			this.y-=8;
+			this.y-=12;
 		} else {
 			this.saltando = false;
 		}

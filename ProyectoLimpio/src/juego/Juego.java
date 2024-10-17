@@ -40,9 +40,9 @@ public class Juego extends InterfaceJuego
 				}
 		}
 		
-		this.bombas = new Bomba[100];
+		this.bombas = new Bomba[1];
 		this.tortugas = new Tortuga[10];
-		this.ataques = new Ataque[10];
+		this.ataques = new Ataque[3];
 		this.fondoCielo = entorno.Herramientas.cargarImagen("cieloPrueba.png");
 		this.fondoMuerte = entorno.Herramientas.cargarImagen("die.jpg");
 		// Inicializar lo que haga falta para el juego
@@ -128,7 +128,7 @@ public class Juego extends InterfaceJuego
 			ataqueFueraDePantalla(ataques); //si una bola de fuego sale de la pantalla esta se vuelve null
 			
 			
-			
+			bombaFueraDePantalla(bombas); //si una  sale de la pantalla esta se vuelve null
 			
 			
 			if(entor.sePresiono(entor.TECLA_ESPACIO)) { // tecla para tirar un ataque
@@ -330,7 +330,7 @@ public class Juego extends InterfaceJuego
 	
 	//retorna true si el jugador esta pisando la isla
 	public boolean estaApoyado(Jugador j, Isla i) {
-		return Math.abs(j.getBorderInferior()-i.getBorderSuperior())<2 && (j.getBorderIzquierdo()<i.getBorderDerecho()) && 
+		return Math.abs(j.getBorderInferior()-i.getBorderSuperior())<4 && (j.getBorderIzquierdo()<i.getBorderDerecho()) && 
 				(j.getBorderDerecho()>i.getBorderIzquierdo());
 	}
 	
