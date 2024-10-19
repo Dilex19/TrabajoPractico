@@ -8,7 +8,6 @@ import entorno.Entorno;
 public class Jugador{
 	private double x,y;
 	private int velocidad;
-	private int vida;
 	private boolean direccion;
 	private double ancho;
 	private double alto;
@@ -26,7 +25,6 @@ public class Jugador{
 		this.e = e;
 		this.direccion = false;
 		this.velocidad = 2;
-		this.vida = 100;
 		this.escala =0.35;
 		this.Izq = entorno.Herramientas.cargarImagen("personajePrueba2.png");
 		this.Der = entorno.Herramientas.cargarImagen("personajePrueba.png");
@@ -107,7 +105,6 @@ public class Jugador{
 	
 	public double getX() {return x;}
 	public double getY() {return y;}
-	public int getVida() {return vida;}
 	public void setY(double y) {
 		this.y = y;
 	}
@@ -115,8 +112,6 @@ public class Jugador{
 	public boolean getDireccion() {
 		return direccion;
 	}
-	
-	public void recibirDaño(int daño) {this.vida -=daño;}
 
 
 }

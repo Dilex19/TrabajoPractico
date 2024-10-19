@@ -20,6 +20,7 @@ public class Juego extends InterfaceJuego
 	private Bomba[] bombas;
 	private Image fondoCielo;
 	private Image fondoMuerte;
+	private Escudo escudo;
 	// Variables y métodos propios de cada grupo
 	// ...
 	
@@ -45,6 +46,7 @@ public class Juego extends InterfaceJuego
 		this.ataques = new Ataque[3];
 		this.fondoCielo = entorno.Herramientas.cargarImagen("cieloPrueba.png");
 		this.fondoMuerte = entorno.Herramientas.cargarImagen("die.jpg");
+		this.escudo = new Escudo(this.entor,this.jugador,3);
 		// Inicializar lo que haga falta para el juego
 		// ...
 
@@ -148,6 +150,12 @@ public class Juego extends InterfaceJuego
 			}
 			
 			
+			if(entor.estaPresionada(entor.TECLA_ABAJO)) {
+				escudo.proteccionEscudo(jugador.getDireccion(), jugador);
+				escudo.dibujar();
+			}
+			
+			
 			salto(); //funcion que toma en cuenta cuando el jugador quiere dar un salto
 			if(jugador.saltando) { //si el jugador esta saltando subira por cierto periodo de tiempo
 				jugador.saltando(momentoDeSalto, entor.tiempo());
@@ -163,7 +171,7 @@ public class Juego extends InterfaceJuego
 				this.jugador.apoyado = false;
 			}
 			
-			
+			colisionFuegoBomba(ataques,bombas);
 			
 			if(jugador.seCayoJugador() || tortugaColicionJugador(tortugas,jugador) || colisionBombaJugador(bombas,jugador)) {
 				jugador = null;
@@ -172,6 +180,8 @@ public class Juego extends InterfaceJuego
 						jugador=null;
 				}
 			}
+			
+			
 			
 		}
 		
@@ -190,7 +200,26 @@ public class Juego extends InterfaceJuego
 	
 	
 	
-	private boolean colisionBombaJugador(Bomba[] bomba, Jugador jugador2) {
+	private void colisionFuegoBomba(Ataque[] a, Bomba[] b) {
+		for(int i = 0; i<a.length;i++) {
+			if(a[i] != null) {
+				for (int j = 0; j<b.length;j++) {
+					if(b[j] !=null) {
+						if(((a[i].getBorderDerecho() > b[j].getBorderIzquierdo() && a[i].getBorderIzquierdo() <b[j].getBorderIzquierdo() ) 
+								|| (a[i].getBorderIzquierdo() <b[j].getBorderDerecho() &&
+							a[i].getBorderDerecho() > b[j].getBorderDerecho())) && a[i].getBorderInferior() >b[j].getBorderSuperior() && a[i].getBorderSuperior()<b[j].getBorderInferior()){
+							a[i] = null;
+							b[j] = null;
+							return;
+						}
+					}
+				}
+			}
+		}
+		
+	}
+
+	private boolean colisionBombaJugador(Bomba[] bomba, Jugador jugador) {
 		for(Bomba b: bombas) {
 			if((jugador != null && b != null) && ( (jugador.getBorderDerecho() > b.getBorderIzquierdo() && jugador.getBorderIzquierdo() <b.getBorderIzquierdo() ) 
 					|| (jugador.getBorderIzquierdo() <b.getBorderDerecho() &&
