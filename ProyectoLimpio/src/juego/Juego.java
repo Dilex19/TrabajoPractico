@@ -21,6 +21,7 @@ public class Juego extends InterfaceJuego
 	private Image fondoCielo;
 	private Image fondoMuerte;
 	private Escudo escudo;
+	private Gnomo[] gnomo;
 	// Variables y métodos propios de cada grupo
 	// ...
 	
@@ -28,7 +29,7 @@ public class Juego extends InterfaceJuego
 	{
 		// Inicializa el objeto entorno
 		this.entor = new Entorno(this, "Proyecto para TP", 800, 600);
-		this.jugador = new Jugador(400.0,40.0, entor);
+		this.jugador = new Jugador(270.0,455.0, entor);
 		this.islas = new Isla[15];
 		int k = 1;
 		for(int i = 1; i<6;i++) {
@@ -41,6 +42,7 @@ public class Juego extends InterfaceJuego
 				}
 		}
 		
+		this.gnomo = new Gnomo[4];
 		this.bombas = new Bomba[1];
 		this.tortugas = new Tortuga[10];
 		this.fondoCielo = entorno.Herramientas.cargarImagen("cieloPrueba.png");
@@ -116,6 +118,38 @@ public class Juego extends InterfaceJuego
 						}
 				}
 			}
+			
+			nuevoGnomo(gnomo);
+            for(Gnomo gno: this.gnomo) {
+                if(gno != null) {
+                    gno.dibujar();
+                    gno.gravedad();
+
+                    double random =  Math.random();
+
+                    boolean gnomoApoyadoEnIsla = estaApoyadoGnomo(gno, islas);
+
+                    if(gnomoApoyadoEnIsla && (gno.apoyado == false)) {
+                        gno.apoyado = true;
+                        if(random > 0.5) {
+                            gno.direccion = true;
+                        } else {
+                            gno.direccion = false;
+                        }
+                        } 
+                    if(!gnomoApoyadoEnIsla) {
+                            gno.apoyado = false;
+                        }
+
+                    Isla islaDeLaGnomo = islaDelGnomo(gno, this.islas); // guarda la isla en la que esta la tortuga
+
+                    if(gnomoApoyadoEnIsla) {
+                        gno.movimientoX();
+                        }
+                }
+            }
+			
+			
 			
 			for (Bomba bom: this.bombas) { //mueve el ataque al lado para el que fue lanzado
 				if (bom != null) {
@@ -214,7 +248,6 @@ public class Juego extends InterfaceJuego
 					}
 				}
 			}
-		
 		
 	}
 
@@ -375,6 +408,51 @@ public class Juego extends InterfaceJuego
 		return false;
 	}
 	
+	
+	private void nuevoGnomo(Gnomo[] gnom) { //rellena los espaciocios nulos del arreglo de tortugas para crear una nueva tortuga
+        if(entor.numeroDeTick()%300== 0 || entor.numeroDeTick() == 0) {
+            for(int i= 0; i<gnom.length;i++) { //Tratar de usar el otro tipo de FOR (no me salio)
+                if(gnom[i] == null) {
+                    gnom[i] = new Gnomo(entor);
+                    return;
+                }
+            }
+        }
+
+    }
+    //retorna true si la gnomo esta pisando la isla
+        public boolean estaApoyado(Gnomo g, Isla i) {
+            return Math.abs(g.getBorderInferior()-i.getBorderSuperior())<1 && (g.getBorderIzquierdo()<i.getBorderDerecho()) && 
+                    (g.getBorderDerecho()>i.getBorderIzquierdo());
+        }
+
+        //retorna true si el gnomo se encuentra pisando una isla del arreglo, retorna false de lo contrario
+        public boolean estaApoyadoGnomo(Gnomo n, Isla[] i) {
+            for(Isla islas: i) {
+                if(estaApoyado(n,islas)) { 
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public Isla islaDelGnomo(Gnomo g, Isla[] i) { // esta funcion sirve si y solo si el gnomo esta apoyada en una isla
+            Isla is = islas[1];
+            for(Isla islas: i) {
+                if(estaEnLaIsla(g,islas)) {
+                    is =  islas;
+                }
+            }
+            return is;
+        }
+
+        private boolean estaEnLaIsla(Gnomo g, Isla i) {
+            if(Math.abs(g.getBorderInferior()-i.getBorderSuperior())<1 && (g.getBorderIzquierdo()<i.getBorderDerecho()) && 
+                    (g.getBorderDerecho()>i.getBorderIzquierdo())) {
+                return true;
+            }
+            return false;
+        }
 	
 	private void tirarBomba(Bomba[] bom, Tortuga tor) {
 		for(int i= 0; i<bom.length;i++) { //Tratar de usar el otro tipo de FOR (no me salio)
