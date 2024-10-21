@@ -16,7 +16,7 @@ public class Juego extends InterfaceJuego
 	private Tortuga[] tortugas;
 	private Isla[] islas;
 	private int momentoDeSalto;
-	private Ataque[] ataques;
+	private Ataque ataque;
 	private Bomba[] bombas;
 	private Image fondoCielo;
 	private Image fondoMuerte;
@@ -28,7 +28,7 @@ public class Juego extends InterfaceJuego
 	{
 		// Inicializa el objeto entorno
 		this.entor = new Entorno(this, "Proyecto para TP", 800, 600);
-		this.jugador = new Jugador(270.0,455.0, entor);
+		this.jugador = new Jugador(400.0,40.0, entor);
 		this.islas = new Isla[15];
 		int k = 1;
 		for(int i = 1; i<6;i++) {
@@ -43,7 +43,6 @@ public class Juego extends InterfaceJuego
 		
 		this.bombas = new Bomba[1];
 		this.tortugas = new Tortuga[10];
-		this.ataques = new Ataque[3];
 		this.fondoCielo = entorno.Herramientas.cargarImagen("cieloPrueba.png");
 		this.fondoMuerte = entorno.Herramientas.cargarImagen("die.jpg");
 		this.escudo = new Escudo(this.entor,this.jugador,3);
@@ -124,22 +123,23 @@ public class Juego extends InterfaceJuego
 					}
 			}
 			
-			tortugaMuere(tortugas,ataques); //si una bola de fuego choca con una tortuga, estos desaparecen, osea, se vuelven null
+			tortugaMuere(tortugas,ataque); //si una bola de fuego choca con una tortuga, estos desaparecen, osea, se vuelven null
 			
 			
-			ataqueFueraDePantalla(ataques); //si una bola de fuego sale de la pantalla esta se vuelve null
+			ataqueFueraDePantalla(); //si una bola de fuego sale de la pantalla esta se vuelve null
 			
 			
 			bombaFueraDePantalla(bombas); //si una  sale de la pantalla esta se vuelve null
 			
 			
 			if(entor.sePresiono(entor.TECLA_ESPACIO)) { // tecla para tirar un ataque
-				nuevoAtaque(ataques);
+				nuevoAtaque();
 			}
-			for (int i =0; i<ataques.length;i++) { //mueve el ataque al lado para el que fue lanzado
-				if (ataques[i] != null) {
-					ataques[i].movimientoX();					}
-			}
+							
+			if (ataque != null) {	//mueve el ataque al lado para el que fue lanzado
+				ataque.movimientoX();					
+				}
+			
 			
 			jugador.dibujar();
 			if(entor.estaPresionada(entor.TECLA_IZQUIERDA)) {
@@ -171,7 +171,7 @@ public class Juego extends InterfaceJuego
 				this.jugador.apoyado = false;
 			}
 			
-			colisionFuegoBomba(ataques,bombas);
+			colisionFuegoBomba(ataque,bombas);
 			
 			if(jugador.seCayoJugador() || tortugaColicionJugador(tortugas,jugador) || colisionBombaJugador(bombas,jugador)) {
 				jugador = null;
@@ -200,22 +200,21 @@ public class Juego extends InterfaceJuego
 	
 	
 	
-	private void colisionFuegoBomba(Ataque[] a, Bomba[] b) {
-		for(int i = 0; i<a.length;i++) {
-			if(a[i] != null) {
-				for (int j = 0; j<b.length;j++) {
-					if(b[j] !=null) {
-						if(((a[i].getBorderDerecho() > b[j].getBorderIzquierdo() && a[i].getBorderIzquierdo() <b[j].getBorderIzquierdo() ) 
-								|| (a[i].getBorderIzquierdo() <b[j].getBorderDerecho() &&
-							a[i].getBorderDerecho() > b[j].getBorderDerecho())) && a[i].getBorderInferior() >b[j].getBorderSuperior() && a[i].getBorderSuperior()<b[j].getBorderInferior()){
-							a[i] = null;
-							b[j] = null;
-							return;
+	private void colisionFuegoBomba(Ataque a, Bomba[] b) {
+		if(a != null) {
+			for (int j = 0; j<b.length;j++) {
+				if(b[j] !=null) {
+					if(((a.getBorderDerecho() > b[j].getBorderIzquierdo() && a.getBorderIzquierdo() <b[j].getBorderIzquierdo() ) 
+							|| (a.getBorderIzquierdo() <b[j].getBorderDerecho() &&
+							a.getBorderDerecho() > b[j].getBorderDerecho())) && a.getBorderInferior() >b[j].getBorderSuperior() && a.getBorderSuperior()<b[j].getBorderInferior()){
+						this.ataque = null;
+						b[j] = null;
+						return;
 						}
 					}
 				}
 			}
-		}
+		
 		
 	}
 
@@ -261,26 +260,24 @@ public class Juego extends InterfaceJuego
 		
 	}
 		
-	private void ataqueFueraDePantalla(Ataque[] ata) {
-		for(int i= 0; i<ata.length;i++) { //Tratar de usar el otro tipo de FOR (no me salio)
-			if(ata[i] != null && (ata[i].getBorderIzquierdo()> this.entor.ancho() || ata[i].getBorderDerecho() <0)) {
-				ata[i] = null;
+	private void ataqueFueraDePantalla() {
+		//Tratar de usar el otro tipo de FOR (no me salio)
+		if(this.ataque != null && (this.ataque.getBorderIzquierdo()> this.entor.ancho() || this.ataque.getBorderDerecho() <0)) {
+			this.ataque = null;
 			} 
-		}
-		
 	}
+		
 
-	private void tortugaMuere(Tortuga[] t, Ataque[] ata) { //si una bola de fuego choca con una tortuga, estos desaparecen, osea, se vuelven null
+	private void tortugaMuere(Tortuga[] t, Ataque ata) { //si una bola de fuego choca con una tortuga, estos desaparecen, osea, se vuelven null
 		for(int j = 0; j<t.length;j++) {
-			for(int i= 0; i<ata.length;i++) { 
 				if(t[j] !=null) {
-					if(ata[i] != null && ( (ata[i].getBorderDerecho() > t[j].getBorderIzquierdo() && ata[i].getBorderIzquierdo() <t[j].getBorderIzquierdo() ) 
-							|| (ata[i].getBorderIzquierdo() <t[j].getBorderDerecho() &&
-							ata[i].getBorderDerecho() > t[j].getBorderDerecho())) && 
-							ata[i].getBorderInferior() >=t[j].getBorderSuperior() && ata[i].getBorderSuperior()<=t[j].getBorderInferior() ) {
-						ata[i]= null;
+					if(ata != null && ( (ata.getBorderDerecho() > t[j].getBorderIzquierdo() && ata.getBorderIzquierdo() <t[j].getBorderIzquierdo() ) 
+							|| (ata.getBorderIzquierdo() <t[j].getBorderDerecho() &&
+							ata.getBorderDerecho() > t[j].getBorderDerecho())) && 
+							ata.getBorderInferior() >=t[j].getBorderSuperior() && ata.getBorderSuperior()<=t[j].getBorderInferior() ) {
+						this.ataque= null;
 						t[j]=null;
-					}
+						return;
 				}
 			}
 		}
@@ -288,14 +285,13 @@ public class Juego extends InterfaceJuego
 	
 	
 	
-	private void nuevoAtaque(Ataque[] ata) {
-		for(int i= 0; i<ata.length;i++) { //Tratar de usar el otro tipo de FOR (no me salio)
-			if(ata[i] == null) {
-				ata[i] = new Ataque(jugador,entor);
+	private void nuevoAtaque() {
+		//Tratar de usar el otro tipo de FOR (no me salio)
+			if(this.ataque == null) {
+				this.ataque = new Ataque(jugador,entor);
 				return;
 			}
 		}
-	}
 	
 	
 	
