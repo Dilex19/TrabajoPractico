@@ -141,11 +141,11 @@ public class Juego extends InterfaceJuego
                             gno.apoyado = false;
                         }
 
-                    Isla islaDeLaGnomo = islaDelGnomo(gno, this.islas); // guarda la isla en la que esta la tortuga
 
                     if(gnomoApoyadoEnIsla) {
                         gno.movimientoX();
                         }
+                    
                 }
             }
 			
@@ -166,6 +166,8 @@ public class Juego extends InterfaceJuego
 			bombaFueraDePantalla(bombas); //si una  sale de la pantalla esta se vuelve null
 			
 			
+
+			
 			if(entor.sePresiono(entor.TECLA_ESPACIO)) { // tecla para tirar un ataque
 				nuevoAtaque();
 			}
@@ -184,10 +186,11 @@ public class Juego extends InterfaceJuego
 			}
 			
 			
-			if(entor.estaPresionada(entor.TECLA_ABAJO)) {
+			if(entor.estaPresionada(entor.TECLA_ABAJO) && escudo.getUsos() !=0) {
 				escudo.proteccionEscudo(jugador.getDireccion(), jugador);
 				escudo.dibujar();
-			}
+				proteccionDelEscudo(escudo, bombas);
+			} 
 			
 			
 			salto(); //funcion que toma en cuenta cuando el jugador quiere dar un salto
@@ -209,14 +212,9 @@ public class Juego extends InterfaceJuego
 			
 			if(jugador.seCayoJugador() || tortugaColicionJugador(tortugas,jugador) || colisionBombaJugador(bombas,jugador)) {
 				jugador = null;
-			} else {
-				if(tortugaColicionJugador(tortugas,jugador)) {
-						jugador=null;
-				}
-			}
+			} 
 			
-			
-			
+
 		}
 		
 		
@@ -234,6 +232,21 @@ public class Juego extends InterfaceJuego
 	
 	
 	
+	private void proteccionDelEscudo(Escudo es, Bomba[] bom) {
+		if(escudo.getUsos() != 0) {
+			for(int i = 0; i< bom.length; i++) {
+				if (bom[i] != null) {
+					if(((escudo.getBorderDerecho() > bom[i].getBorderIzquierdo() && escudo.getBorderIzquierdo() < bom[i].getBorderIzquierdo()) || 
+							(escudo.getBorderIzquierdo() < bom[i].getBorderDerecho() && escudo.getBorderDerecho() > bom[i].getBorderDerecho())) && escudo.getBorderInferior() >bom[i].getBorderSuperior() && escudo.getBorderSuperior()<bom[i].getBorderInferior()) {
+						bom[i] = null;
+						escudo.escudoUsado();
+						return;
+					}
+				}
+			}
+		}
+	}
+
 	private void colisionFuegoBomba(Ataque a, Bomba[] b) {
 		if(a != null) {
 			for (int j = 0; j<b.length;j++) {
