@@ -151,6 +151,8 @@ public class Juego extends InterfaceJuego
 			
 			
 			
+            
+            
 			for (Bomba bom: this.bombas) { //mueve el ataque al lado para el que fue lanzado
 				if (bom != null) {
 					bom.movimientoX();					
@@ -191,6 +193,19 @@ public class Juego extends InterfaceJuego
 				escudo.dibujar();
 				proteccionDelEscudo(escudo, bombas);
 			} 
+			
+			
+			for(int i =0; i<gnomo.length;i++) {
+                if(gnomo[i]!=null &&(gnomo[i].seCayoGnomo() || tortugaColicionGnomo(tortugas,gnomo[i])  || colisionBombaGnomo(bombas,gnomo[i]))) {
+                    gnomo[i] = null;
+
+                } else {
+                	  if(gnomo[i]!=null && (jugadorColicionGnomo(jugador,gnomo[i]))) {
+                          gnomo[i]=null;
+                      }
+                }
+            }
+			
 			
 			
 			salto(); //funcion que toma en cuenta cuando el jugador quiere dar un salto
@@ -423,7 +438,7 @@ public class Juego extends InterfaceJuego
 	
 	
 	private void nuevoGnomo(Gnomo[] gnom) { //rellena los espaciocios nulos del arreglo de tortugas para crear una nueva tortuga
-        if(entor.numeroDeTick()%300== 0 || entor.numeroDeTick() == 0) {
+        if(entor.numeroDeTick()%300== 0 || entor.numeroDeTick() == 100) {
             for(int i= 0; i<gnom.length;i++) { //Tratar de usar el otro tipo de FOR (no me salio)
                 if(gnom[i] == null) {
                     gnom[i] = new Gnomo(entor);
@@ -433,6 +448,40 @@ public class Juego extends InterfaceJuego
         }
 
     }
+	
+	public boolean colisionBombaGnomo(Bomba[] bomba, Gnomo gnomo) {
+		for(Bomba b:bombas) {
+			if((gnomo!= null && b !=null) && ( (gnomo.getBorderDerecho() > b.getBorderIzquierdo() && gnomo.getBorderIzquierdo() <b.getBorderIzquierdo() ) 
+	                || (gnomo.getBorderIzquierdo() <b.getBorderDerecho() &&
+	                        gnomo.getBorderDerecho() > b.getBorderDerecho())) && 
+	                        gnomo.getBorderInferior() >b.getBorderSuperior() && gnomo.getBorderSuperior()<b.getBorderInferior() ){
+	                    return true;
+	                }
+	        }
+		 return false;
+	}
+
+    public boolean tortugaColicionGnomo(Tortuga[] tortugas, Gnomo gnomo) {
+		for(Tortuga t:tortugas) {
+			if((gnomo!= null && t !=null) && ( (gnomo.getBorderDerecho() > t.getBorderIzquierdo() && gnomo.getBorderIzquierdo() <t.getBorderIzquierdo() ) 
+	                || (gnomo.getBorderIzquierdo() <t.getBorderDerecho() &&
+	                        gnomo.getBorderDerecho() > t.getBorderDerecho())) && 
+	                        gnomo.getBorderInferior() >t.getBorderSuperior() && gnomo.getBorderSuperior()<t.getBorderInferior() ){
+	                    return true;
+	                }
+	        }
+		 return false;
+	}
+	public boolean jugadorColicionGnomo(Jugador jugador, Gnomo gnomo) {
+        if((gnomo != null && jugador != null) && ( (gnomo.getBorderDerecho() > jugador.getBorderIzquierdo() && gnomo.getBorderIzquierdo() <jugador.getBorderIzquierdo() ) 
+                || (gnomo.getBorderIzquierdo() <jugador.getBorderDerecho() &&
+                gnomo.getBorderDerecho() > jugador.getBorderDerecho())) && 
+                gnomo.getBorderInferior() >jugador.getBorderSuperior() && gnomo.getBorderSuperior()<jugador.getBorderInferior() ){
+            return true;
+        }
+
+    return false;
+}
     //retorna true si la gnomo esta pisando la isla
         public boolean estaApoyado(Gnomo g, Isla i) {
             return Math.abs(g.getBorderInferior()-i.getBorderSuperior())<1 && (g.getBorderIzquierdo()<i.getBorderDerecho()) && 
