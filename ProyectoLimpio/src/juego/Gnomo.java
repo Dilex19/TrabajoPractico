@@ -20,14 +20,14 @@ public class Gnomo {
 	    
 	    public Gnomo(Entorno e) {	
 			this.x = 400;
-			this.y = 40;
+			this.y = 60;
 			this.e = e;
 			this.direccion = false;
 			this.direccionAleatoria = true;
-			this.velocidad = 0.5;
-			this.escala =0.02;
-			this.Izq = entorno.Herramientas.cargarImagen("Gnomo-PNG-Photo.png");
-			this.Der = entorno.Herramientas.cargarImagen("Gnomo-PNG-Photo.png");
+			this.velocidad = 0.8;
+			this.escala =0.04;
+			this.Izq = entorno.Herramientas.cargarImagen("plantongnomo2.png");
+			this.Der = entorno.Herramientas.cargarImagen("plantongnomo.png");
 			this.apoyado = false;
 			this.alto = this.Izq.getHeight(null) * this.escala;
 			this.ancho = this.Izq.getWidth(null) * this.escala;

@@ -22,6 +22,11 @@ public class Juego extends InterfaceJuego
 	private Image fondoMuerte;
 	private Escudo escudo;
 	private Gnomo[] gnomo;
+	private Image casaImagen;
+	private int[] posiciones;
+	private int perdidos;
+	private int salvados;
+	private int eliminados;
 	// Variables y métodos propios de cada grupo
 	// ...
 	
@@ -34,25 +39,33 @@ public class Juego extends InterfaceJuego
 		int k = 1;
 		for(int i = 1; i<6;i++) {
 			if(i==1) {
-				islas[0] = new Isla((1)*this.entor.ancho()/(1+1), 100*1, entor,0.34);
+				islas[0] = new Isla((1)*this.entor.ancho()/(1+1), 100*1, entor,0.34); //Especificamos a la primera isla para que no quede tan grande a comparacion de las otras
 			} else {
 				for( int j =1; j <= i;j++) {
 				islas[k++] = new Isla((j)*this.entor.ancho()/(i+1), 100*i, entor,1.3/(i+2));
 					}
 				}
 		}
-		
+		this.posiciones = new int[4];
+		for(int i = 0; i<4;i++) {
+			this.posiciones[i] = 200*i;
+		}
 		this.gnomo = new Gnomo[4];
 		this.bombas = new Bomba[1];
 		this.tortugas = new Tortuga[10];
 		this.fondoCielo = entorno.Herramientas.cargarImagen("cieloPrueba.png");
 		this.fondoMuerte = entorno.Herramientas.cargarImagen("die.jpg");
+		this.casaImagen = entorno.Herramientas.cargarImagen("el_crustaceo_cascarudo_casa.png");
 		this.escudo = new Escudo(this.entor,this.jugador,3);
+		this.perdidos = 0;
+		this.salvados = 0;
+		this.eliminados = 0;
 		// Inicializar lo que haga falta para el juego
 		// ...
 
 		// Inicia el juego!
 		this.entor.iniciar();
+
 	}
 
 	/**
@@ -68,19 +81,22 @@ public class Juego extends InterfaceJuego
 		
 		//si el jugador es null se tomara como que muerió
 				if(jugador== null) {
-					this.entor.dibujarImagen(fondoMuerte, 390, 280, 0, 1);
+					this.entor.dibujarImagen(fondoMuerte, 390, 280, 0, 1.5);
 				}
 		
 		
 		if(jugador != null) {
+		
+			this.entor.dibujarImagen(this.fondoCielo, 0, 150, 0, 1); //dibuja el fondo de cielo azul
 			
-			this.entor.dibujarImagen(this.fondoCielo, 0, 150, 0, 1);
-
-			for(Isla is: this.islas) {
+			for(Isla is: this.islas) { //dibuja las islas en pantalla
 				is.dibujar();
 			}
 			
-			nuevaTortuga(tortugas);
+			this.entor.dibujarImagen(casaImagen, 395, 40, 0, 0.17);
+			
+			
+			nuevaTortuga(tortugas); // genera una nueva tortuga hasta que llegue a 10 tortugas vivas
 			for(Tortuga tor: this.tortugas) {
 				if(tor != null) {
 					tor.dibujar();
@@ -118,6 +134,7 @@ public class Juego extends InterfaceJuego
 						}
 				}
 			}
+			
 			
 			nuevoGnomo(gnomo);
             for(Gnomo gno: this.gnomo) {
@@ -198,10 +215,11 @@ public class Juego extends InterfaceJuego
 			for(int i =0; i<gnomo.length;i++) {
                 if(gnomo[i]!=null &&(gnomo[i].seCayoGnomo() || tortugaColicionGnomo(tortugas,gnomo[i])  || colisionBombaGnomo(bombas,gnomo[i]))) {
                     gnomo[i] = null;
-
+                    this.perdidos +=1;
                 } else {
                 	  if(gnomo[i]!=null && (jugadorColicionGnomo(jugador,gnomo[i]))) {
                           gnomo[i]=null;
+                          this.salvados +=1;
                       }
                 }
             }
@@ -229,6 +247,11 @@ public class Juego extends InterfaceJuego
 				jugador = null;
 			} 
 			
+			tiempo(this.posiciones[0]);
+			gnomosPerdidos(this.posiciones[1]);
+			gnomosSalvados(this.posiciones[2]);
+			tortugasEliminadas(this.posiciones[3]);
+			mostrarUsosEscudo();
 
 		}
 		
@@ -247,6 +270,7 @@ public class Juego extends InterfaceJuego
 	
 	
 	
+
 	private void proteccionDelEscudo(Escudo es, Bomba[] bom) {
 		if(escudo.getUsos() != 0) {
 			for(int i = 0; i< bom.length; i++) {
@@ -279,7 +303,7 @@ public class Juego extends InterfaceJuego
 		
 	}
 
-	private boolean colisionBombaJugador(Bomba[] bomba, Jugador jugador) {
+	private boolean colisionBombaJugador(Bomba[] bomba, Jugador jugador) { 
 		for(Bomba b: bombas) {
 			if((jugador != null && b != null) && ( (jugador.getBorderDerecho() > b.getBorderIzquierdo() && jugador.getBorderIzquierdo() <b.getBorderIzquierdo() ) 
 					|| (jugador.getBorderIzquierdo() <b.getBorderDerecho() &&
@@ -338,6 +362,7 @@ public class Juego extends InterfaceJuego
 							ata.getBorderInferior() >=t[j].getBorderSuperior() && ata.getBorderSuperior()<=t[j].getBorderInferior() ) {
 						this.ataque= null;
 						t[j]=null;
+						this.eliminados +=1;
 						return;
 				}
 			}
@@ -523,6 +548,41 @@ public class Juego extends InterfaceJuego
 				return;
 			}
 		}
+	}
+	
+	
+	public void tiempo(int posicionX) {
+		this.entor.cambiarFont("italy", 20, Color.black);
+		int tiempoSegundos = ((this.entor.tiempo())/1000)%60;
+		int tiempoMinutos = (this.entor.tiempo())/60000;
+		String xTiempo = " "+ tiempoMinutos + ":" + tiempoSegundos;
+		this.entor.escribirTexto("TIEMPO:" + xTiempo, posicionX + 10, 25);
+	
+		
+	}
+	
+	private void gnomosPerdidos(int posicionX) {
+		this.entor.cambiarFont("italy", 20, Color.black);
+		String xTiempo = " "+ this.perdidos;
+		this.entor.escribirTexto("PERDIDOS:" + xTiempo, posicionX + 10, 25);
+	}
+
+	
+	private void gnomosSalvados(int posicionX) {
+		this.entor.cambiarFont("italy", 20, Color.black);
+		String xTiempo = " "+ this.salvados;
+		this.entor.escribirTexto("SALVADOS:" + xTiempo, posicionX + 10, 25);
+	}
+	
+	private void tortugasEliminadas(int posicionX) {
+		this.entor.cambiarFont("italy", 20, Color.black);
+		String xTiempo = " "+ this.eliminados;
+		this.entor.escribirTexto("ELIMINADOS:" + xTiempo, posicionX + 10, 25);
+	}
+	
+	private void mostrarUsosEscudo() {
+		this.entor.cambiarFont("italy", 20, Color.black);
+		this.entor.escribirTexto("ESCUDOS: " + this.escudo.getUsos(), 10, 575);
 	}
 	
 	@SuppressWarnings("unused")

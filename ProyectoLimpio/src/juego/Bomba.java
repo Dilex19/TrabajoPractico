@@ -29,9 +29,9 @@ public class Bomba {
 	
 	public void movimientoX() {
 		if(this.direccion) {
-			this.x -= 2;
+			this.x += 4;
 		} else {
-			this.x +=2;
+			this.x -=4;
 		}
 		this.e.dibujarImagen(this.imagen, getX(), getY(), 0, escala);
 	}
