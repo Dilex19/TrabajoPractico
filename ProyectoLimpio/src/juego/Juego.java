@@ -291,7 +291,7 @@ public class Juego extends InterfaceJuego
 		return false;
 	}
 
-	private boolean tortugaColicionJugador(Tortuga[] tortugas, Jugador jugador) {
+	private boolean tortugaColicionJugador(Tortuga[] tortugas, Jugador jugador) { // si el jugador choca con una tortuga retorna true 
 		for(Tortuga t: this.tortugas) {
 			if((jugador != null && t != null) && ( (jugador.getBorderDerecho() > t.getBorderIzquierdo() && jugador.getBorderIzquierdo() <t.getBorderIzquierdo() ) 
 					|| (jugador.getBorderIzquierdo() <t.getBorderDerecho() &&
