@@ -13,6 +13,7 @@ public class Jugador{
 	private double alto;
 	private double escala;
 	boolean saltando;
+	private int vida;
 	Image Izq;
 	Image Der;
 	Entorno e;
@@ -23,6 +24,7 @@ public class Jugador{
 		this.x = x;
 		this.y = y;
 		this.e = e;
+		this.vida=3;
 		this.direccion = false;
 		this.velocidad = 2;
 		this.escala =0.35;
@@ -57,9 +59,7 @@ public class Jugador{
 			this.y+=5;
 		}
 	}
-//	public void moverArriba() {this.y -=velocidad;}
-//	public void moverAbajo() {this.y +=velocidad;}
-	
+
 	//Dibujar Jugador
 	public void dibujar() {
 		if(this.direccion == true) {
@@ -80,7 +80,13 @@ public class Jugador{
 		}
 	}
 	
+	public void daño() {
+		this.vida -= 1;	
+	}
 	
+	public void masVida() {
+		this.vida+=1; 
+	}
 	
 	public boolean seCayoJugador() {
 		if(getBorderSuperior() > e.alto()+20) {
@@ -108,10 +114,17 @@ public class Jugador{
 	public void setY(double y) {
 		this.y = y;
 	}
+	public void setX(double x ) {
+		this.x=x;
+	}
 	
 	public boolean getDireccion() {
 		return direccion;
 	}
 
+	public int getVida(){
+		return this.vida;
+		
+	}
 
 }

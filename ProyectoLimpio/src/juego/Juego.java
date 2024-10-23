@@ -12,14 +12,14 @@ public class Juego extends InterfaceJuego
 	// El objeto Entorno que controla el tiempo y otros
 	private Entorno entor;
 	private Jugador jugador;
-//	private Enemigo enemigo;
 	private Tortuga[] tortugas;
 	private Isla[] islas;
 	private int momentoDeSalto;
 	private Ataque ataque;
 	private Bomba[] bombas;
 	private Image fondoCielo;
-	private Image fondoMuerte;
+	private Image fondoPerdiste;
+	private Image fondoGanar;
 	private Escudo escudo;
 	private Gnomo[] gnomo;
 	private Image casaImagen;
@@ -54,8 +54,9 @@ public class Juego extends InterfaceJuego
 		this.bombas = new Bomba[1];
 		this.tortugas = new Tortuga[10];
 		this.fondoCielo = entorno.Herramientas.cargarImagen("cieloPrueba.png");
-		this.fondoMuerte = entorno.Herramientas.cargarImagen("die.jpg");
+		this.fondoPerdiste = entorno.Herramientas.cargarImagen("fondoPerdiste.png");
 		this.casaImagen = entorno.Herramientas.cargarImagen("el_crustaceo_cascarudo_casa.png");
+		this.fondoGanar = entorno.Herramientas.cargarImagen("fondoGanar.jpg");
 		this.escudo = new Escudo(this.entor,this.jugador,3);
 		this.perdidos = 0;
 		this.salvados = 0;
@@ -80,32 +81,29 @@ public class Juego extends InterfaceJuego
 		// ...
 		
 		//si el jugador es null se tomara como que muerió
-				if(jugador== null) {
-					this.entor.dibujarImagen(fondoMuerte, 390, 280, 0, 1.5);
-				}
-		
-		
-		if(jugador != null) {
-		
-			this.entor.dibujarImagen(this.fondoCielo, 0, 150, 0, 1); //dibuja el fondo de cielo azul
+		if(jugador.getVida()==0 || (this.perdidos== 10)) {
+			this.entor.dibujarImagen(fondoPerdiste, 420, 280, 0, 1.5);
+			this.entor.cambiarFont("italy", 20, Color.white);
+			String xTiempo = " "+ this.salvados;
+			this.entor.escribirTexto("SALVADOS:" + xTiempo, 330, 425);
+		//	tiempo(330,500,Color.WHITE);
+		} else {
 			
+		if(jugador != null && this.salvados !=20) {
+			this.entor.dibujarImagen(this.fondoCielo, 0, 150, 0, 1); //dibuja el fondo de cielo azul
 			for(Isla is: this.islas) { //dibuja las islas en pantalla
 				is.dibujar();
 			}
 			
 			this.entor.dibujarImagen(casaImagen, 395, 40, 0, 0.17);
-			
-			
+		
 			nuevaTortuga(tortugas); // genera una nueva tortuga hasta que llegue a 10 tortugas vivas
 			for(Tortuga tor: this.tortugas) {
 				if(tor != null) {
 					tor.dibujar();
 					tor.gravedad();
-					
 					double random =  Math.random();
-					
 					boolean tortugaApoyadoEnIsla = estaApoyado(tor, islas);
-					
 					if(tortugaApoyadoEnIsla && (tor.apoyado == false)) {
 						tor.apoyado = true;
 						if(random > 0.5) {
@@ -120,32 +118,25 @@ public class Juego extends InterfaceJuego
 					
 					Isla islaDeLaTortuga = islaDeLaTortuga(tor, this.islas); // guarda la isla en la que esta la tortuga
 					
-					
 					tortugasRebote(tor,islaDeLaTortuga); //si la tortuga llega a un borde, cambia de dirreccion
-					
 					
 					if(random >= 0.998 && tortugaApoyadoEnIsla) {
 						tirarBomba(bombas,tor);
 					}
-					
-					
+	
 					if(tortugaApoyadoEnIsla) {
 						tor.movimientoX();
 						}
 				}
 			}
 			
-			
 			nuevoGnomo(gnomo);
             for(Gnomo gno: this.gnomo) {
                 if(gno != null) {
                     gno.dibujar();
                     gno.gravedad();
-
                     double random =  Math.random();
-
                     boolean gnomoApoyadoEnIsla = estaApoyadoGnomo(gno, islas);
-
                     if(gnomoApoyadoEnIsla && (gno.apoyado == false)) {
                         gno.apoyado = true;
                         if(random > 0.5) {
@@ -158,18 +149,13 @@ public class Juego extends InterfaceJuego
                             gno.apoyado = false;
                         }
 
-
                     if(gnomoApoyadoEnIsla) {
                         gno.movimientoX();
                         }
-                    
                 }
+                
             }
-			
-			
-			
-            
-            
+			 
 			for (Bomba bom: this.bombas) { //mueve el ataque al lado para el que fue lanzado
 				if (bom != null) {
 					bom.movimientoX();					
@@ -195,7 +181,6 @@ public class Juego extends InterfaceJuego
 				ataque.movimientoX();					
 				}
 			
-			
 			jugador.dibujar();
 			if(entor.estaPresionada(entor.TECLA_IZQUIERDA)) {
 				jugador.moverIzquierda();
@@ -204,27 +189,30 @@ public class Juego extends InterfaceJuego
 				jugador.moverDerecha();
 			}
 			
-			
 			if(entor.estaPresionada(entor.TECLA_ABAJO) && escudo.getUsos() !=0) {
 				escudo.proteccionEscudo(jugador.getDireccion(), jugador);
 				escudo.dibujar();
 				proteccionDelEscudo(escudo, bombas);
 			} 
 			
-			
 			for(int i =0; i<gnomo.length;i++) {
                 if(gnomo[i]!=null &&(gnomo[i].seCayoGnomo() || tortugaColicionGnomo(tortugas,gnomo[i])  || colisionBombaGnomo(bombas,gnomo[i]))) {
                     gnomo[i] = null;
                     this.perdidos +=1;
                 } else {
-                	  if(gnomo[i]!=null && (jugadorColicionGnomo(jugador,gnomo[i]))) {
+                	  if(gnomo[i]!=null && (jugadorColicionGnomo(jugador,gnomo[i]) && gnomo[i].getY()>350)) {
                           gnomo[i]=null;
                           this.salvados +=1;
+                          double random =Math.random();
+                          if (random <0.2) {
+                        	  jugador.masVida();
+                          }
+                          if(random>0.7) {
+                        	  escudo.masEscudo();
+                          }
                       }
                 }
             }
-			
-			
 			
 			salto(); //funcion que toma en cuenta cuando el jugador quiere dar un salto
 			if(jugador.saltando) { //si el jugador esta saltando subira por cierto periodo de tiempo
@@ -244,33 +232,34 @@ public class Juego extends InterfaceJuego
 			colisionFuegoBomba(ataque,bombas);
 			
 			if(jugador.seCayoJugador() || tortugaColicionJugador(tortugas,jugador) || colisionBombaJugador(bombas,jugador)) {
-				jugador = null;
+				jugador.daño();
+				jugador.setX(270.0);
+				jugador.setY(455.0);
+				
 			} 
 			
-			tiempo(this.posiciones[0]);
+			tiempo(this.posiciones[0], 25, Color.black);
 			gnomosPerdidos(this.posiciones[1]);
 			gnomosSalvados(this.posiciones[2]);
 			tortugasEliminadas(this.posiciones[3]);
 			mostrarUsosEscudo();
-
+			mostrarVida();
+			
+			
+		} else {
+			if(this.salvados>=20) {	
+				this.entor.dibujarImagen(fondoGanar, 400, 300, 0, 1);
+				}
+			}
 		}
 		
-		
-		
-		
-		//crea de nuevo al jugador para no tener que reiniciar el juego
-		if(jugador==null && entor.estaPresionada(entor.TECLA_ESPACIO)){
-			jugador=new Jugador(270.0,455.0, entor);
-		}
-	
-		
-	
-		
+//		//crea de nuevo al jugador para no tener que reiniciar el juego
+//		if(jugador==null && entor.estaPresionada(entor.TECLA_ESPACIO)){
+//			jugador=new Jugador(270.0,455.0, entor);
+//		}
+//	
 	}
 	
-	
-	
-
 	private void proteccionDelEscudo(Escudo es, Bomba[] bom) {
 		if(escudo.getUsos() != 0) {
 			for(int i = 0; i< bom.length; i++) {
@@ -300,7 +289,6 @@ public class Juego extends InterfaceJuego
 					}
 				}
 			}
-		
 	}
 
 	private boolean colisionBombaJugador(Bomba[] bomba, Jugador jugador) { 
@@ -342,7 +330,6 @@ public class Juego extends InterfaceJuego
 				bom[i] = null;
 			} 
 		}
-		
 	}
 		
 	private void ataqueFueraDePantalla() {
@@ -352,7 +339,6 @@ public class Juego extends InterfaceJuego
 			} 
 	}
 		
-
 	private void tortugaMuere(Tortuga[] t, Ataque ata) { //si una bola de fuego choca con una tortuga, estos desaparecen, osea, se vuelven null
 		for(int j = 0; j<t.length;j++) {
 				if(t[j] !=null) {
@@ -369,8 +355,6 @@ public class Juego extends InterfaceJuego
 		}
 	}
 	
-	
-	
 	private void nuevoAtaque() {
 		//Tratar de usar el otro tipo de FOR (no me salio)
 			if(this.ataque == null) {
@@ -378,8 +362,6 @@ public class Juego extends InterfaceJuego
 				return;
 			}
 		}
-	
-	
 	
 	private void nuevaTortuga(Tortuga[] tortu) { //rellena los espaciocios nulos del arreglo de tortugas para crear una nueva tortuga
 		if(entor.numeroDeTick()%300== 0 || entor.numeroDeTick() == 0) {
@@ -390,7 +372,6 @@ public class Juego extends InterfaceJuego
 				}
 			}
 		}
-		
 	}
 
 	public Isla islaDeLaTortuga(Tortuga t, Isla[] i) { // esta funcion sirve si y solo si la tortuga esta apoyada en una isla
@@ -411,11 +392,10 @@ public class Juego extends InterfaceJuego
 		return false;
 	}
 
-
 	private boolean estaAlBordeDerecho(Tortuga t, Isla islas2) {
 		return (t.getBorderDerecho() >islas2.getBorderDerecho());
 	}
-
+	
 	private boolean estaAlBordeIzquierdo(Tortuga t, Isla islas2) {
 		return (t.getBorderIzquierdo() <islas2.getBorderIzquierdo());
 	}
@@ -424,8 +404,7 @@ public class Juego extends InterfaceJuego
 		if(this.entor.sePresiono(entor.TECLA_ARRIBA) && estaApoyado(jugador, islas)) {
 			this.momentoDeSalto = entor.tiempo();
 			jugador.saltando = true;
-		}
-		
+		}	
 	}
 
 	//retorna true si el jugador se encuentra pisando una isla del arreglo, retorna false de lo contrario
@@ -437,7 +416,6 @@ public class Juego extends InterfaceJuego
 		}
 		return false;
 	}
-	
 	
 	//retorna true si el jugador esta pisando la isla
 	public boolean estaApoyado(Jugador j, Isla i) {
@@ -461,7 +439,6 @@ public class Juego extends InterfaceJuego
 		return false;
 	}
 	
-	
 	private void nuevoGnomo(Gnomo[] gnom) { //rellena los espaciocios nulos del arreglo de tortugas para crear una nueva tortuga
         if(entor.numeroDeTick()%300== 0 || entor.numeroDeTick() == 100) {
             for(int i= 0; i<gnom.length;i++) { //Tratar de usar el otro tipo de FOR (no me salio)
@@ -471,7 +448,6 @@ public class Juego extends InterfaceJuego
                 }
             }
         }
-
     }
 	
 	public boolean colisionBombaGnomo(Bomba[] bomba, Gnomo gnomo) {
@@ -550,15 +526,12 @@ public class Juego extends InterfaceJuego
 		}
 	}
 	
-	
-	public void tiempo(int posicionX) {
-		this.entor.cambiarFont("italy", 20, Color.black);
+	public void tiempo(int posicionX, int i, Color col) {
+		this.entor.cambiarFont("italy", 20, col);
 		int tiempoSegundos = ((this.entor.tiempo())/1000)%60;
 		int tiempoMinutos = (this.entor.tiempo())/60000;
 		String xTiempo = " "+ tiempoMinutos + ":" + tiempoSegundos;
-		this.entor.escribirTexto("TIEMPO:" + xTiempo, posicionX + 10, 25);
-	
-		
+		this.entor.escribirTexto("TIEMPO:" + xTiempo, posicionX + 10, i);
 	}
 	
 	private void gnomosPerdidos(int posicionX) {
@@ -567,7 +540,6 @@ public class Juego extends InterfaceJuego
 		this.entor.escribirTexto("PERDIDOS:" + xTiempo, posicionX + 10, 25);
 	}
 
-	
 	private void gnomosSalvados(int posicionX) {
 		this.entor.cambiarFont("italy", 20, Color.black);
 		String xTiempo = " "+ this.salvados;
@@ -583,6 +555,10 @@ public class Juego extends InterfaceJuego
 	private void mostrarUsosEscudo() {
 		this.entor.cambiarFont("italy", 20, Color.black);
 		this.entor.escribirTexto("ESCUDOS: " + this.escudo.getUsos(), 10, 575);
+	}
+	private void mostrarVida() {
+		this.entor.cambiarFont("italy", 20, Color.black);
+		this.entor.escribirTexto("VIDAS: " + this.jugador.getVida(), 210, 575);
 	}
 	
 	@SuppressWarnings("unused")

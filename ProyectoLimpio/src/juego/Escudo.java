@@ -57,6 +57,9 @@ public class Escudo {
 		this.usos -=1;
 	}
 	
+	public void masEscudo() {
+		this.usos+=1;
+	}
 	
 	public double getY() {
 		return this.y;
