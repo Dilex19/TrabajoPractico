@@ -10,6 +10,12 @@ import entorno.InterfaceJuego;
 public class Juego extends InterfaceJuego
 {
 	// El objeto Entorno que controla el tiempo y otros
+	private enum EstadoJuego { MENU, JUGANDO, PERDIDO, GANADO }
+	private EstadoJuego estadoActual = EstadoJuego.MENU;
+	private Image fondoMenu;
+	private int tiempoMenu;
+	private Image menuEnter;
+	private Image MensajeInicial;
 	private Entorno entor;
 	private Jugador jugador;
 	private Tortuga[] tortugas;
@@ -34,7 +40,7 @@ public class Juego extends InterfaceJuego
 	{
 		// Inicializa el objeto entorno
 		this.entor = new Entorno(this, "Proyecto para TP", 800, 600);
-		this.jugador = new Jugador(270.0,455.0, entor);
+		this.jugador = new Jugador(270.0,455.0, entor,3);
 		this.islas = new Isla[15];
 		int k = 1;
 		for(int i = 1; i<6;i++) {
@@ -53,9 +59,12 @@ public class Juego extends InterfaceJuego
 		this.gnomo = new Gnomo[4];
 		this.bombas = new Bomba[1];
 		this.tortugas = new Tortuga[10];
+		this.menuEnter = entorno.Herramientas.cargarImagen("menuEnter.png");
+		this.fondoMenu = entorno.Herramientas.cargarImagen("menuImagen.png");
 		this.fondoCielo = entorno.Herramientas.cargarImagen("cieloPrueba.png");
 		this.fondoPerdiste = entorno.Herramientas.cargarImagen("fondoPerdiste.png");
-		this.casaImagen = entorno.Herramientas.cargarImagen("el_crustaceo_cascarudo_casa.png");
+		this.casaImagen = entorno.Herramientas.cargarImagen("CasaGnomo.png");
+		this.MensajeInicial = entorno.Herramientas.cargarImagen("MensajeInicial.png");
 		this.fondoGanar = entorno.Herramientas.cargarImagen("fondoGanar.jpg");
 		this.escudo = new Escudo(this.entor,this.jugador,3);
 		this.perdidos = 0;
@@ -79,6 +88,23 @@ public class Juego extends InterfaceJuego
 	{
 		// Procesamiento de un instante de tiempo
 		// ...
+		if (estadoActual == EstadoJuego.MENU) {
+	        // Dibuja la imagen del menú en el centro de la pantalla
+			
+	        this.entor.dibujarImagen(fondoMenu, this.entor.ancho() / 2, this.entor.alto() / 2, 0, 0.8);
+	        
+	        this.entor.dibujarImagen(MensajeInicial, this.entor.ancho() / 2, this.entor.alto() / 4, 0, 1.1);
+	        
+	        // Mensaje de inicio
+	        this.entor.dibujarImagen(menuEnter, this.entor.ancho() / 2, this.entor.alto() / 1.5, 0, 0.8);
+	        
+	        // Si se presiona ENTER, cambia el estado a JUGANDO
+	        if (entor.sePresiono(entor.TECLA_ENTER)) {
+	           this.tiempoMenu = this.entor.tiempo();
+	        	estadoActual = EstadoJuego.JUGANDO;
+	        }
+	        return; // Salir del método para no continuar al siguiente estado
+	    }
 		
 		//si el jugador es null se tomara como que muerió
 		if(jugador.getVida()==0 || (this.perdidos== 10)) {
@@ -95,7 +121,7 @@ public class Juego extends InterfaceJuego
 				is.dibujar();
 			}
 			
-			this.entor.dibujarImagen(casaImagen, 395, 40, 0, 0.17);
+			this.entor.dibujarImagen(casaImagen, 395, 40, 0, 0.2);
 		
 			nuevaTortuga(tortugas); // genera una nueva tortuga hasta que llegue a 10 tortugas vivas
 			for(Tortuga tor: this.tortugas) {
@@ -238,7 +264,7 @@ public class Juego extends InterfaceJuego
 				
 			} 
 			
-			tiempo(this.posiciones[0], 25, Color.black);
+			tiempo(this.posiciones[0], 25,this.entor.tiempo()-this.tiempoMenu, Color.black);
 			gnomosPerdidos(this.posiciones[1]);
 			gnomosSalvados(this.posiciones[2]);
 			tortugasEliminadas(this.posiciones[3]);
@@ -526,10 +552,10 @@ public class Juego extends InterfaceJuego
 		}
 	}
 	
-	public void tiempo(int posicionX, int i, Color col) {
+	public void tiempo(int posicionX, int i, int tiempo, Color col) {
 		this.entor.cambiarFont("italy", 20, col);
-		int tiempoSegundos = ((this.entor.tiempo())/1000)%60;
-		int tiempoMinutos = (this.entor.tiempo())/60000;
+		int tiempoSegundos = (tiempo/1000)%60;
+		int tiempoMinutos = (tiempo/60000);
 		String xTiempo = " "+ tiempoMinutos + ":" + tiempoSegundos;
 		this.entor.escribirTexto("TIEMPO:" + xTiempo, posicionX + 10, i);
 	}

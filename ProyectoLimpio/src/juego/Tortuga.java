@@ -25,8 +25,8 @@ public class Tortuga {
 //		this.direccionAleatoria = false;
 		this.velocidad = 0.5;
 		this.escala =0.09;
-		this.Izq = entorno.Herramientas.cargarImagen("enemigoPrueba.png");
-		this.Der = entorno.Herramientas.cargarImagen("enemigoPrueba.png");
+		this.Izq = entorno.Herramientas.cargarImagen("Enemigo2.png");
+		this.Der = entorno.Herramientas.cargarImagen("Enemigo.png");
 		this.apoyado = false;
 		this.alto = this.Izq.getHeight(null) * this.escala;
 		this.ancho = this.Izq.getWidth(null) * this.escala;

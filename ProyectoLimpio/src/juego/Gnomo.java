@@ -25,9 +25,9 @@ public class Gnomo {
 			this.direccion = false;
 			this.direccionAleatoria = true;
 			this.velocidad = 0.8;
-			this.escala =0.04;
-			this.Izq = entorno.Herramientas.cargarImagen("plantongnomo2.png");
-			this.Der = entorno.Herramientas.cargarImagen("plantongnomo.png");
+			this.escala =0.3;
+			this.Izq = entorno.Herramientas.cargarImagen("Gnomo.png");
+			this.Der = entorno.Herramientas.cargarImagen("Gnomo2.png");
 			this.apoyado = false;
 			this.alto = this.Izq.getHeight(null) * this.escala;
 			this.ancho = this.Izq.getWidth(null) * this.escala;

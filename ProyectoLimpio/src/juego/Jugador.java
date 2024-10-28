@@ -20,16 +20,16 @@ public class Jugador{
 	boolean apoyado;
 	Juego j;
 	
-	public Jugador(double x, double y, Entorno e) {
+	public Jugador(double x, double y, Entorno e, int vida) {
 		this.x = x;
 		this.y = y;
 		this.e = e;
-		this.vida=3;
+		this.vida=vida;
 		this.direccion = false;
 		this.velocidad = 2;
 		this.escala =0.35;
-		this.Izq = entorno.Herramientas.cargarImagen("personajePrueba2.png");
-		this.Der = entorno.Herramientas.cargarImagen("personajePrueba.png");
+		this.Izq = entorno.Herramientas.cargarImagen("Personaje2.png");
+		this.Der = entorno.Herramientas.cargarImagen("Personaje.png");
 		this.apoyado = false;
 		this.alto = this.Izq.getHeight(null) * this.escala;
 		this.ancho = this.Izq.getWidth(null) * this.escala;
