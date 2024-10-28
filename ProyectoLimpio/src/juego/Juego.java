@@ -33,6 +33,8 @@ public class Juego extends InterfaceJuego
 	private int perdidos;
 	private int salvados;
 	private int eliminados;
+	private int salvadosNecesarios;
+	private int gnomosPerdidosMaximos;
 	// Variables y métodos propios de cada grupo
 	// ...
 	
@@ -70,6 +72,8 @@ public class Juego extends InterfaceJuego
 		this.perdidos = 0;
 		this.salvados = 0;
 		this.eliminados = 0;
+		this.salvadosNecesarios = 5;
+		this.gnomosPerdidosMaximos = 10;
 		// Inicializar lo que haga falta para el juego
 		// ...
 
@@ -106,8 +110,8 @@ public class Juego extends InterfaceJuego
 	        return; // Salir del método para no continuar al siguiente estado
 	    }
 		
-		//si el jugador es null se tomara como que muerió
-		if(jugador.getVida()==0 || (this.perdidos== 10)) {
+		//si el jugador es null se tomara como que murió
+		if(jugador.getVida()==0 || (this.perdidos== this.gnomosPerdidosMaximos)) { //si el jugador es null o se perdieron la contidad maxima de gnomos perdidos.
 			this.entor.dibujarImagen(fondoPerdiste, 420, 280, 0, 1.5);
 			this.entor.cambiarFont("italy", 20, Color.white);
 			String xTiempo = " "+ this.salvados;
@@ -115,7 +119,7 @@ public class Juego extends InterfaceJuego
 		//	tiempo(330,500,Color.WHITE);
 		} else {
 			
-		if(jugador != null && this.salvados !=20) {
+		if(jugador != null && this.salvados !=this.salvadosNecesarios) {
 			this.entor.dibujarImagen(this.fondoCielo, 0, 150, 0, 1); //dibuja el fondo de cielo azul
 			for(Isla is: this.islas) { //dibuja las islas en pantalla
 				is.dibujar();
@@ -124,21 +128,21 @@ public class Juego extends InterfaceJuego
 			this.entor.dibujarImagen(casaImagen, 395, 40, 0, 0.2);
 		
 			nuevaTortuga(tortugas); // genera una nueva tortuga hasta que llegue a 10 tortugas vivas
-			for(Tortuga tor: this.tortugas) {
-				if(tor != null) {
+			for(Tortuga tor: this.tortugas) { // recorre la lista de tortugas
+				if(tor != null) { //mientras la tortuga no sea nula, la dibuja y hace que caiga
 					tor.dibujar();
 					tor.gravedad();
 					double random =  Math.random();
 					boolean tortugaApoyadoEnIsla = estaApoyado(tor, islas);
-					if(tortugaApoyadoEnIsla && (tor.apoyado == false)) {
+					if(tortugaApoyadoEnIsla && (tor.apoyado == false)) { //con un numero random, se hace un 50/50 para que cuando toque una isla, elija aleatoriamente entre izquierda o derecha como direcciòn.
 						tor.apoyado = true;
-						if(random > 0.5) {
+						if(random > 0.5) {//si el numero es mayor a 0,5, la tortuga gira hacia la izquierda, si no, hacia la derecha
 							tor.direccion = true;
 						} else {
 							tor.direccion = false;
 						}
 						} 
-					if(!tortugaApoyadoEnIsla) {
+					if(!tortugaApoyadoEnIsla) { //Se pregunta si la tortuga se encuentra en una isla
 							tor.apoyado = false;
 						}
 					
@@ -146,26 +150,26 @@ public class Juego extends InterfaceJuego
 					
 					tortugasRebote(tor,islaDeLaTortuga); //si la tortuga llega a un borde, cambia de dirreccion
 					
-					if(random >= 0.998 && tortugaApoyadoEnIsla) {
+					if(random >= 0.998 && tortugaApoyadoEnIsla) { //si el numero random es mayor o igual a 0.998 y esta apoyado en una isla. Esta otruga tira un elemento bomba hacia la dirección donde está mirando.
 						tirarBomba(bombas,tor);
 					}
 	
-					if(tortugaApoyadoEnIsla) {
+					if(tortugaApoyadoEnIsla) { // si esta apoyado camina hacia la dirección donde mira.
 						tor.movimientoX();
 						}
 				}
 			}
 			
-			nuevoGnomo(gnomo);
-            for(Gnomo gno: this.gnomo) {
-                if(gno != null) {
+			nuevoGnomo(gnomo); //genera un nuevo elemento gnomo
+            for(Gnomo gno: this.gnomo) { //recorre el arreglo de gnomos
+                if(gno != null) { // mientra el elemento no sea nulo, dibuja en pantalla al gnomo y hace que caiga
                     gno.dibujar();
                     gno.gravedad();
                     double random =  Math.random();
                     boolean gnomoApoyadoEnIsla = estaApoyadoGnomo(gno, islas);
-                    if(gnomoApoyadoEnIsla && (gno.apoyado == false)) {
+                    if(gnomoApoyadoEnIsla && (gno.apoyado == false)) { //Se genera un numero random, y si el gnomo se encuentra apoyado en una isla, se aleatorisa si gira hacia la derecha o hacia la izquierda.
                         gno.apoyado = true;
-                        if(random > 0.5) {
+                        if(random > 0.5) { //si el numero es mayor a 0,5, el gnomo gira hacia la izquierda, si no, hacia la derecha
                             gno.direccion = true;
                         } else {
                             gno.direccion = false;
@@ -175,7 +179,7 @@ public class Juego extends InterfaceJuego
                             gno.apoyado = false;
                         }
 
-                    if(gnomoApoyadoEnIsla) {
+                    if(gnomoApoyadoEnIsla) { //Si el gnomo esta apoyado en una isla este se mueve hacia donde mira.
                         gno.movimientoX();
                         }
                 }
@@ -190,14 +194,9 @@ public class Juego extends InterfaceJuego
 			
 			tortugaMuere(tortugas,ataque); //si una bola de fuego choca con una tortuga, estos desaparecen, osea, se vuelven null
 			
-			
 			ataqueFueraDePantalla(); //si una bola de fuego sale de la pantalla esta se vuelve null
 			
-			
 			bombaFueraDePantalla(bombas); //si una  sale de la pantalla esta se vuelve null
-			
-			
-
 			
 			if(entor.sePresiono(entor.TECLA_ESPACIO)) { // tecla para tirar un ataque
 				nuevoAtaque();
@@ -207,30 +206,31 @@ public class Juego extends InterfaceJuego
 				ataque.movimientoX();					
 				}
 			
-			jugador.dibujar();
-			if(entor.estaPresionada(entor.TECLA_IZQUIERDA)) {
+			jugador.dibujar(); //dibuja en pantalla al jugador
+			if(entor.estaPresionada(entor.TECLA_IZQUIERDA)) { //si se preciona la flecha izquierda, se mueve hacia la izquierda
 				jugador.moverIzquierda();
 			}
-			if(entor.estaPresionada(entor.TECLA_DERECHA)) {
+			if(entor.estaPresionada(entor.TECLA_DERECHA)) { //Si se preciona la flecha derecha, se mueve hacia la derecha.
 				jugador.moverDerecha();
 			}
 			
-			if(entor.estaPresionada(entor.TECLA_ABAJO) && escudo.getUsos() !=0) {
+			if(entor.estaPresionada(entor.TECLA_ABAJO) && escudo.getUsos() !=0) { //si se preciona la flecha abajo, aparece el escudo que proteje al jugador una cantidad limitada de veces de bombas
 				escudo.proteccionEscudo(jugador.getDireccion(), jugador);
 				escudo.dibujar();
 				proteccionDelEscudo(escudo, bombas);
 			} 
 			
-			for(int i =0; i<gnomo.length;i++) {
+			for(int i =0; i<gnomo.length;i++) { 
+				//Si el gnomo no es nulo y se sale de la pantalla, o colisiona con una tortuga o colisiona con una bomba, este gnomo se vuelve nulo y se suma uno al contador de gnomos perdidos
                 if(gnomo[i]!=null &&(gnomo[i].seCayoGnomo() || tortugaColicionGnomo(tortugas,gnomo[i])  || colisionBombaGnomo(bombas,gnomo[i]))) {
                     gnomo[i] = null;
                     this.perdidos +=1;
-                } else {
+                } else { //sino, si colisiona con el jugador Y está por debajo de la tercera isla, el gnomo se vuelve nulo, suma 1 al contador de SALVADOS
                 	  if(gnomo[i]!=null && (jugadorColicionGnomo(jugador,gnomo[i]) && gnomo[i].getY()>350)) {
                           gnomo[i]=null;
                           this.salvados +=1;
                           double random =Math.random();
-                          if (random <0.2) {
+                          if (random <0.2) { //De manera "random" al rescatar al gnomo se puede dar al jugador mas escudo o mas vida o no darle nada.
                         	  jugador.masVida();
                           }
                           if(random>0.7) {
@@ -273,7 +273,7 @@ public class Juego extends InterfaceJuego
 			
 			
 		} else {
-			if(this.salvados>=20) {	
+			if(this.salvados>=this.salvadosNecesarios) {	
 				this.entor.dibujarImagen(fondoGanar, 400, 300, 0, 1);
 				}
 			}
