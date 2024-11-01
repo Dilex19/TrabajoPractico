@@ -11,7 +11,7 @@ public class Juego extends InterfaceJuego
 {
 	// El objeto Entorno que controla el tiempo y otros
 	private enum EstadoJuego { MENU, JUGANDO, PERDIDO, GANADO }
-	private EstadoJuego estadoActual = EstadoJuego.MENU;
+	private EstadoJuego estadoActual;
 	private Image fondoMenu;
 	private int tiempoMenu;
 	private Image menuEnter;
@@ -35,12 +35,14 @@ public class Juego extends InterfaceJuego
 	private int eliminados;
 	private int salvadosNecesarios;
 	private int gnomosPerdidosMaximos;
+	private int tiempoJuegoTerminado;
 	// Variables y métodos propios de cada grupo
 	// ...
 	
 	Juego()
 	{
 		// Inicializa el objeto entorno
+		this.estadoActual = EstadoJuego.MENU;
 		this.entor = new Entorno(this, "Proyecto para TP", 800, 600);
 		this.jugador = new Jugador(270.0,455.0, entor,3);
 		this.islas = new Isla[15];
@@ -112,10 +114,15 @@ public class Juego extends InterfaceJuego
 		
 		//si el jugador es null se tomara como que murió
 		if(jugador.getVida()==0 || (this.perdidos== this.gnomosPerdidosMaximos)) { //si el jugador es null o se perdieron la contidad maxima de gnomos perdidos.
+			if(estadoActual == EstadoJuego.JUGANDO) {
+				this.tiempoJuegoTerminado = this.entor.tiempo();
+				estadoActual = EstadoJuego.PERDIDO;
+			}
 			this.entor.dibujarImagen(fondoPerdiste, 420, 280, 0, 1.5);
 			this.entor.cambiarFont("italy", 20, Color.white);
-			String xTiempo = " "+ this.salvados;
-			this.entor.escribirTexto("SALVADOS:" + xTiempo, 330, 425);
+			String xSalvados = " "+ this.salvados;
+			this.entor.escribirTexto("SALVADOS:" + xSalvados, 330, 425);
+			tiempo(330,500,this.tiempoJuegoTerminado, Color.white);
 		//	tiempo(330,500,Color.WHITE);
 		} else {
 			
@@ -275,6 +282,12 @@ public class Juego extends InterfaceJuego
 		} else {
 			if(this.salvados>=this.salvadosNecesarios) {	
 				this.entor.dibujarImagen(fondoGanar, 400, 300, 0, 1);
+				if(estadoActual == EstadoJuego.JUGANDO) {
+					this.tiempoJuegoTerminado = this.entor.tiempo();
+					estadoActual = EstadoJuego.GANADO;
+				}
+				this.entor.cambiarFont("italy", 20, Color.white);
+				tiempo(330,500,this.tiempoJuegoTerminado, Color.white);
 				}
 			}
 		}
@@ -286,100 +299,7 @@ public class Juego extends InterfaceJuego
 //	
 	}
 	
-	private void proteccionDelEscudo(Escudo es, Bomba[] bom) {
-		if(escudo.getUsos() != 0) {
-			for(int i = 0; i< bom.length; i++) {
-				if (bom[i] != null) {
-					if(((escudo.getBorderDerecho() > bom[i].getBorderIzquierdo() && escudo.getBorderIzquierdo() < bom[i].getBorderIzquierdo()) || 
-							(escudo.getBorderIzquierdo() < bom[i].getBorderDerecho() && escudo.getBorderDerecho() > bom[i].getBorderDerecho())) && escudo.getBorderInferior() >bom[i].getBorderSuperior() && escudo.getBorderSuperior()<bom[i].getBorderInferior()) {
-						bom[i] = null;
-						escudo.escudoUsado();
-						return;
-					}
-				}
-			}
-		}
-	}
 
-	private void colisionFuegoBomba(Ataque a, Bomba[] b) {
-		if(a != null) {
-			for (int j = 0; j<b.length;j++) {
-				if(b[j] !=null) {
-					if(((a.getBorderDerecho() > b[j].getBorderIzquierdo() && a.getBorderIzquierdo() <b[j].getBorderIzquierdo() ) 
-							|| (a.getBorderIzquierdo() <b[j].getBorderDerecho() &&
-							a.getBorderDerecho() > b[j].getBorderDerecho())) && a.getBorderInferior() >b[j].getBorderSuperior() && a.getBorderSuperior()<b[j].getBorderInferior()){
-						this.ataque = null;
-						b[j] = null;
-						return;
-						}
-					}
-				}
-			}
-	}
-
-	private boolean colisionBombaJugador(Bomba[] bomba, Jugador jugador) { 
-		for(Bomba b: bombas) {
-			if((jugador != null && b != null) && ( (jugador.getBorderDerecho() > b.getBorderIzquierdo() && jugador.getBorderIzquierdo() <b.getBorderIzquierdo() ) 
-					|| (jugador.getBorderIzquierdo() <b.getBorderDerecho() &&
-					jugador.getBorderDerecho() > b.getBorderDerecho())) && 
-					jugador.getBorderInferior() >b.getBorderSuperior() && jugador.getBorderSuperior()<b.getBorderInferior() ) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private boolean tortugaColicionJugador(Tortuga[] tortugas, Jugador jugador) { // si el jugador choca con una tortuga retorna true 
-		for(Tortuga t: this.tortugas) {
-			if((jugador != null && t != null) && ( (jugador.getBorderDerecho() > t.getBorderIzquierdo() && jugador.getBorderIzquierdo() <t.getBorderIzquierdo() ) 
-					|| (jugador.getBorderIzquierdo() <t.getBorderDerecho() &&
-					jugador.getBorderDerecho() > t.getBorderDerecho())) && 
-					jugador.getBorderInferior() >t.getBorderSuperior() && jugador.getBorderSuperior()<t.getBorderInferior() ) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private void tortugasRebote(Tortuga tor, Isla islaDeLaTortuga) {
-		if(estaAlBordeDerecho(tor, islaDeLaTortuga)) { // si esta al borde derecho da la vuelta a la izquierda
-			tor.direccion = false;
-		}
-		if(estaAlBordeIzquierdo(tor, islaDeLaTortuga)) { // si esta al borde izquierdo da la vuelta a la derecha
-			tor.direccion = true;
-		}
-	}
-
-	private void bombaFueraDePantalla(Bomba[] bom) {
-		for(int i= 0; i<bom.length;i++) { //Tratar de usar el otro tipo de FOR (no me salio)
-			if(bom[i] != null && (bom[i].getBorderIzquierdo()> this.entor.ancho() || bom[i].getBorderDerecho() <0)) {
-				bom[i] = null;
-			} 
-		}
-	}
-		
-	private void ataqueFueraDePantalla() {
-		//Tratar de usar el otro tipo de FOR (no me salio)
-		if(this.ataque != null && (this.ataque.getBorderIzquierdo()> this.entor.ancho() || this.ataque.getBorderDerecho() <0)) {
-			this.ataque = null;
-			} 
-	}
-		
-	private void tortugaMuere(Tortuga[] t, Ataque ata) { //si una bola de fuego choca con una tortuga, estos desaparecen, osea, se vuelven null
-		for(int j = 0; j<t.length;j++) {
-				if(t[j] !=null) {
-					if(ata != null && ( (ata.getBorderDerecho() > t[j].getBorderIzquierdo() && ata.getBorderIzquierdo() <t[j].getBorderIzquierdo() ) 
-							|| (ata.getBorderIzquierdo() <t[j].getBorderDerecho() &&
-							ata.getBorderDerecho() > t[j].getBorderDerecho())) && 
-							ata.getBorderInferior() >=t[j].getBorderSuperior() && ata.getBorderSuperior()<=t[j].getBorderInferior() ) {
-						this.ataque= null;
-						t[j]=null;
-						this.eliminados +=1;
-						return;
-				}
-			}
-		}
-	}
 	
 	private void nuevoAtaque() {
 		//Tratar de usar el otro tipo de FOR (no me salio)
@@ -399,7 +319,23 @@ public class Juego extends InterfaceJuego
 			}
 		}
 	}
-
+	
+	//retorna true si la tortuga esta pisando la isla
+	public boolean estaApoyado(Tortuga t, Isla i) {
+		return Math.abs(t.getBorderInferior()-i.getBorderSuperior())<1 && (t.getBorderIzquierdo()<i.getBorderDerecho()) && 
+				(t.getBorderDerecho()>i.getBorderIzquierdo());
+	}
+	
+	//retorna true si la Totuga se encuentra pisando una isla del arreglo, retorna false de lo contrario
+	public boolean estaApoyado(Tortuga j, Isla[] i) {
+		for(Isla islas: i) {
+			if(estaApoyado(j,islas)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public Isla islaDeLaTortuga(Tortuga t, Isla[] i) { // esta funcion sirve si y solo si la tortuga esta apoyada en una isla
 		Isla is = islas[1];
 		for(Isla islas: i) {
@@ -449,21 +385,7 @@ public class Juego extends InterfaceJuego
 				(j.getBorderDerecho()>i.getBorderIzquierdo());
 	}
 	
-	//retorna true si la tortuga esta pisando la isla
-	public boolean estaApoyado(Tortuga t, Isla i) {
-		return Math.abs(t.getBorderInferior()-i.getBorderSuperior())<1 && (t.getBorderIzquierdo()<i.getBorderDerecho()) && 
-				(t.getBorderDerecho()>i.getBorderIzquierdo());
-	}
-	
-	//retorna true si la Totuga se encuentra pisando una isla del arreglo, retorna false de lo contrario
-	public boolean estaApoyado(Tortuga j, Isla[] i) {
-		for(Isla islas: i) {
-			if(estaApoyado(j,islas)) {
-				return true;
-			}
-		}
-		return false;
-	}
+
 	
 	private void nuevoGnomo(Gnomo[] gnom) { //rellena los espaciocios nulos del arreglo de tortugas para crear una nueva tortuga
         if(entor.numeroDeTick()%300== 0 || entor.numeroDeTick() == 100) {
@@ -499,6 +421,8 @@ public class Juego extends InterfaceJuego
 	        }
 		 return false;
 	}
+    
+    
 	public boolean jugadorColicionGnomo(Jugador jugador, Gnomo gnomo) {
         if((gnomo != null && jugador != null) && ( (gnomo.getBorderDerecho() > jugador.getBorderIzquierdo() && gnomo.getBorderIzquierdo() <jugador.getBorderIzquierdo() ) 
                 || (gnomo.getBorderIzquierdo() <jugador.getBorderDerecho() &&
@@ -525,17 +449,7 @@ public class Juego extends InterfaceJuego
             return false;
         }
 
-        public Isla islaDelGnomo(Gnomo g, Isla[] i) { // esta funcion sirve si y solo si el gnomo esta apoyada en una isla
-            Isla is = islas[1];
-            for(Isla islas: i) {
-                if(estaEnLaIsla(g,islas)) {
-                    is =  islas;
-                }
-            }
-            return is;
-        }
-
-        private boolean estaEnLaIsla(Gnomo g, Isla i) {
+        private boolean estaEnLaIsla(Gnomo g, Isla i) { // A partir de un objeto Gnomo y un objeto Isla, devuelve true si la tortuga esta en la isla(tocando por encima)
             if(Math.abs(g.getBorderInferior()-i.getBorderSuperior())<1 && (g.getBorderIzquierdo()<i.getBorderDerecho()) && 
                     (g.getBorderDerecho()>i.getBorderIzquierdo())) {
                 return true;
@@ -552,37 +466,131 @@ public class Juego extends InterfaceJuego
 		}
 	}
 	
-	public void tiempo(int posicionX, int i, int tiempo, Color col) {
+	private void proteccionDelEscudo(Escudo es, Bomba[] bom) { //Recorre un array de bombas no nulas, si el escudo colisiona con una bomba del array de bombas, se resta un uso al escudo y la bomba se vuelve null
+		if(escudo.getUsos() != 0) {
+			for(int i = 0; i< bom.length; i++) {
+				if (bom[i] != null) {
+					if(((escudo.getBorderDerecho() > bom[i].getBorderIzquierdo() && escudo.getBorderIzquierdo() < bom[i].getBorderIzquierdo()) || 
+							(escudo.getBorderIzquierdo() < bom[i].getBorderDerecho() && escudo.getBorderDerecho() > bom[i].getBorderDerecho())) && escudo.getBorderInferior() >bom[i].getBorderSuperior() && escudo.getBorderSuperior()<bom[i].getBorderInferior()) {
+						bom[i] = null;
+						escudo.escudoUsado();
+						return;
+					}
+				}
+			}
+		}
+	}
+
+	private void colisionFuegoBomba(Ataque a, Bomba[] b) { //Recorre un array de bombas y cuando el ataque choca con un objeto bomba de un array de bombas, el objeto bomba en particular y el ataque se vuelven null.
+		if(a != null) {
+			for (int j = 0; j<b.length;j++) {
+				if(b[j] !=null) {
+					if(((a.getBorderDerecho() > b[j].getBorderIzquierdo() && a.getBorderIzquierdo() <b[j].getBorderIzquierdo() ) 
+							|| (a.getBorderIzquierdo() <b[j].getBorderDerecho() &&
+							a.getBorderDerecho() > b[j].getBorderDerecho())) && a.getBorderInferior() >b[j].getBorderSuperior() && a.getBorderSuperior()<b[j].getBorderInferior()){
+						this.ataque = null;
+						b[j] = null;
+						return;
+						}
+					}
+				}
+			}
+	}
+
+	private boolean colisionBombaJugador(Bomba[] bomba, Jugador jugador) { //Recorre un array de bombas y cuando un objeto bomba de un array de bombas colisiona con el jugador devuelve true, si no, false
+		for(Bomba b: bombas) {
+			if((jugador != null && b != null) && ( (jugador.getBorderDerecho() > b.getBorderIzquierdo() && jugador.getBorderIzquierdo() <b.getBorderIzquierdo() ) 
+					|| (jugador.getBorderIzquierdo() <b.getBorderDerecho() &&
+					jugador.getBorderDerecho() > b.getBorderDerecho())) && 
+					jugador.getBorderInferior() >b.getBorderSuperior() && jugador.getBorderSuperior()<b.getBorderInferior() ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean tortugaColicionJugador(Tortuga[] tortugas, Jugador jugador) { // si el jugador choca con una tortuga retorna true 
+		for(Tortuga t: this.tortugas) {
+			if((jugador != null && t != null) && ( (jugador.getBorderDerecho() > t.getBorderIzquierdo() && jugador.getBorderIzquierdo() <t.getBorderIzquierdo() ) 
+					|| (jugador.getBorderIzquierdo() <t.getBorderDerecho() &&
+					jugador.getBorderDerecho() > t.getBorderDerecho())) && 
+					jugador.getBorderInferior() >t.getBorderSuperior() && jugador.getBorderSuperior()<t.getBorderInferior() ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void tortugasRebote(Tortuga tor, Isla islaDeLaTortuga) {
+		if(estaAlBordeDerecho(tor, islaDeLaTortuga)) { // si esta al borde derecho da la vuelta a la izquierda
+			tor.direccion = false;
+		}
+		if(estaAlBordeIzquierdo(tor, islaDeLaTortuga)) { // si esta al borde izquierdo da la vuelta a la derecha
+			tor.direccion = true;
+		}
+	}
+
+	private void bombaFueraDePantalla(Bomba[] bom) { // Cuando una de las bombas de un array de bombas sale de la pantalla este objeto bomba se vuelve null
+		for(int i= 0; i<bom.length;i++) { 
+			if(bom[i] != null && (bom[i].getBorderIzquierdo()> this.entor.ancho() || bom[i].getBorderDerecho() <0)) {
+				bom[i] = null;
+			} 
+		}
+	}
+		
+	private void ataqueFueraDePantalla() { //Cuando un ataque sale de la pantalla este se vuelve null
+		if(this.ataque != null && (this.ataque.getBorderIzquierdo()> this.entor.ancho() || this.ataque.getBorderDerecho() <0)) {
+			this.ataque = null;
+			} 
+	}
+		
+	private void tortugaMuere(Tortuga[] t, Ataque ata) { //si una bola de fuego choca con una tortuga, estos desaparecen, osea, se vuelven null
+		for(int j = 0; j<t.length;j++) {
+				if(t[j] !=null) {
+					if(ata != null && ( (ata.getBorderDerecho() > t[j].getBorderIzquierdo() && ata.getBorderIzquierdo() <t[j].getBorderIzquierdo() ) 
+							|| (ata.getBorderIzquierdo() <t[j].getBorderDerecho() &&
+							ata.getBorderDerecho() > t[j].getBorderDerecho())) && 
+							ata.getBorderInferior() >=t[j].getBorderSuperior() && ata.getBorderSuperior()<=t[j].getBorderInferior() ) {
+						this.ataque= null;
+						t[j]=null;
+						this.eliminados +=1;
+						return;
+				}
+			}
+		}
+	}
+	
+	public void tiempo(int posicionX, int posicionY, int tiempo, Color col) { //A partir de la posicion de x e y imprime el timepo pasado como parametros en minutos y segundos con el color dado
 		this.entor.cambiarFont("italy", 20, col);
 		int tiempoSegundos = (tiempo/1000)%60;
 		int tiempoMinutos = (tiempo/60000);
 		String xTiempo = " "+ tiempoMinutos + ":" + tiempoSegundos;
-		this.entor.escribirTexto("TIEMPO:" + xTiempo, posicionX + 10, i);
+		this.entor.escribirTexto("TIEMPO:" + xTiempo, posicionX + 10, posicionY);
 	}
 	
-	private void gnomosPerdidos(int posicionX) {
+	private void gnomosPerdidos(int posicionX) { //A partir de la posicion X como parametro, imprime en pantalla los gnomos perdidos 
 		this.entor.cambiarFont("italy", 20, Color.black);
 		String xTiempo = " "+ this.perdidos;
 		this.entor.escribirTexto("PERDIDOS:" + xTiempo, posicionX + 10, 25);
 	}
 
-	private void gnomosSalvados(int posicionX) {
+	private void gnomosSalvados(int posicionX) { //A partir de la posicion X como parametro, imprime en pantalla los gnomos salvados 
 		this.entor.cambiarFont("italy", 20, Color.black);
 		String xTiempo = " "+ this.salvados;
 		this.entor.escribirTexto("SALVADOS:" + xTiempo, posicionX + 10, 25);
 	}
 	
-	private void tortugasEliminadas(int posicionX) {
+	private void tortugasEliminadas(int posicionX) { //A partir de la posicion X como parametro, imprime en pantalla la cantidad de tortugas eliminadas
 		this.entor.cambiarFont("italy", 20, Color.black);
 		String xTiempo = " "+ this.eliminados;
 		this.entor.escribirTexto("ELIMINADOS:" + xTiempo, posicionX + 10, 25);
 	}
 	
-	private void mostrarUsosEscudo() {
+	private void mostrarUsosEscudo() { //imprime en pantalla la cantidad de escudos que quedan por usar
 		this.entor.cambiarFont("italy", 20, Color.black);
 		this.entor.escribirTexto("ESCUDOS: " + this.escudo.getUsos(), 10, 575);
 	}
-	private void mostrarVida() {
+	private void mostrarVida() { //Imprime en pantalla la cantidad de vidas que tiene el jugador
 		this.entor.cambiarFont("italy", 20, Color.black);
 		this.entor.escribirTexto("VIDAS: " + this.jugador.getVida(), 210, 575);
 	}
