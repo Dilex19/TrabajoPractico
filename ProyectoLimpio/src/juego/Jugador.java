@@ -36,6 +36,7 @@ public class Jugador{
 	}
 	
 	
+	//mueve el jugador hacia la izquierda
 	public void moverIzquierda() {
 		this.direccion = true;
 		if(getBorderIzquierdo() <0) { //si se choca con el borde para
@@ -44,6 +45,8 @@ public class Jugador{
 			this.x -= velocidad; 
 		}
 	}
+	
+	//mueve al jugador hacia la derecha
 	public void moverDerecha() {//si se choca con el borde para
 		this.direccion = false;
 		if(getBorderDerecho() > this.e.ancho()) {
@@ -80,14 +83,19 @@ public class Jugador{
 		}
 	}
 	
+	
+	//Resta una vida al jugador
 	public void daño() {
 		this.vida -= 1;	
 	}
 	
+	//Suma una vida al jugador
 	public void masVida() {
 		this.vida+=1; 
 	}
 	
+	
+	//Si el jugador cae fuera de la pantalla retorna true, en caso contrario false.
 	public boolean seCayoJugador() {
 		if(getBorderSuperior() > e.alto()+20) {
 			return true;

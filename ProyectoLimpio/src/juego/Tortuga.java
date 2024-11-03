@@ -15,14 +15,12 @@ public class Tortuga {
 	Image Izq;
 	Image Der;
 	boolean apoyado;
-//	boolean direccionAleatoria;
 	
 	public Tortuga(Entorno e) {
 		this.x = spawnRandom(e);
 		this.y = -20;
 		this.e = e;
 		this.direccion = false;
-//		this.direccionAleatoria = false;
 		this.velocidad = 0.5;
 		this.escala =0.09;
 		this.Izq = entorno.Herramientas.cargarImagen("Enemigo2.png");
@@ -32,7 +30,7 @@ public class Tortuga {
 		this.ancho = this.Izq.getWidth(null) * this.escala;
 	}
 	
-	
+	//cada que es llamada la funcion, la tortuga cae 2 pixeles.
 	public void gravedad() {
 		if(!apoyado) {
 			this.y +=2;
@@ -60,6 +58,7 @@ public class Tortuga {
 	}
 
 	
+	//Mueve a la tortuga hacia la derecha si direccion es true, en caso contrario a la izquierda;
 	public void movimientoX() {
 		if (this.direccion) {
 			this.x +=velocidad;

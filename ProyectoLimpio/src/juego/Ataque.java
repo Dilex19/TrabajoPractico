@@ -30,7 +30,7 @@ public class Ataque {
 	}
 	
 	
-	public void movimientoX() {
+	public void movimientoX() { //mueve al ataque en direccion izquierda si direccion es igual a true, en direccion derecha en caso contrario.
 		if(this.direccion) {
 			this.x -= 4;
 			this.e.dibujarImagen(this.Der, getX(), getY(), 0, escala);
@@ -42,11 +42,11 @@ public class Ataque {
 	
 
 
-	private double getY() {
+	private double getY() { //retorna y
 		return this.y;
 	}
 
-	private double getX() {
+	private double getX() { // retorna X
 		return this.x;
 	}
 	
