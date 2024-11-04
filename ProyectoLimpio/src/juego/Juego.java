@@ -121,9 +121,8 @@ public class Juego extends InterfaceJuego
 			this.entor.dibujarImagen(fondoPerdiste, 420, 280, 0, 1.5);
 			this.entor.cambiarFont("italy", 20, Color.white);
 			String xSalvados = " "+ this.salvados;
-			this.entor.escribirTexto("SALVADOS:" + xSalvados, 330, 425);
-			tiempo(330,500,this.tiempoJuegoTerminado, Color.white);
-		//	tiempo(330,500,Color.WHITE);
+			this.entor.escribirTexto("SALVADOS:" + xSalvados, 325, 425);
+			tiempo(320,500,this.tiempoJuegoTerminado, Color.white);
 		} else {
 			
 		if(jugador != null && this.salvados !=this.salvadosNecesarios) {
@@ -288,7 +287,7 @@ public class Juego extends InterfaceJuego
 					estadoActual = EstadoJuego.GANADO;
 				}
 				this.entor.cambiarFont("italy", 20, Color.white); 
-				tiempo(330,500,this.tiempoJuegoTerminado, Color.white);// Se imprime el tiempo en el que el jugador ganó
+				tiempo(325,500,this.tiempoJuegoTerminado, Color.white);// Se imprime el tiempo en el que el jugador ganó
 				}
 			}
 		}
@@ -407,6 +406,21 @@ public class Juego extends InterfaceJuego
             }
         }
     }
+	 //retorna true si la gnomo esta pisando la isla
+    public boolean estaApoyado(Gnomo g, Isla i) {
+        return Math.abs(g.getBorderInferior()-i.getBorderSuperior())<1 && (g.getBorderIzquierdo()<i.getBorderDerecho()) && 
+                (g.getBorderDerecho()>i.getBorderIzquierdo());
+    }
+
+    //retorna true si el gnomo se encuentra pisando una isla del arreglo, retorna false de lo contrario
+    public boolean estaApoyadoGnomo(Gnomo n, Isla[] i) {
+        for(Isla islas: i) {
+            if(estaApoyado(n,islas)) { 
+                return true;
+            }
+        }
+        return false;
+    }
 	
 	//Dado una lista de bombas y un gnomo. La funcion recorre la lista de bombas y mientras no sean nulos, si la bomba colisiona con un gnomo retorna true. En caso contrario false
 	public boolean colisionBombaGnomo(Bomba[] bomba, Gnomo gnomo) {
@@ -436,30 +450,16 @@ public class Juego extends InterfaceJuego
     
     //Dado un objeto jugador y un objeto gnomo, si el jugador y el gnomo colisionan la funcion devuelve true, sino retorna false
 	public boolean jugadorColicionGnomo(Jugador jugador, Gnomo gnomo) {
-        if((gnomo != null && jugador != null) && ( (gnomo.getBorderDerecho() > jugador.getBorderIzquierdo() && gnomo.getBorderIzquierdo() <jugador.getBorderIzquierdo() ) 
+        if((gnomo != null && jugador != null) && (( (gnomo.getBorderDerecho() > jugador.getBorderIzquierdo() && gnomo.getBorderIzquierdo() <jugador.getBorderIzquierdo() ) 
                 || (gnomo.getBorderIzquierdo() <jugador.getBorderDerecho() &&
                 gnomo.getBorderDerecho() > jugador.getBorderDerecho())) && 
-                gnomo.getBorderInferior() >jugador.getBorderSuperior() && gnomo.getBorderSuperior()<jugador.getBorderInferior()){
+                gnomo.getBorderInferior() >jugador.getBorderSuperior() && gnomo.getBorderSuperior()<jugador.getBorderInferior()) ||(jugador.getBorderSuperior() <gnomo.getBorderInferior() && jugador.getBorderDerecho() > gnomo.getBorderDerecho() && jugador.getBorderIzquierdo() < gnomo.getBorderIzquierdo() && jugador.getBorderInferior() > gnomo.getBorderInferior()) ){
             return true;
         }
 
     return false;
 }
-    //retorna true si la gnomo esta pisando la isla
-        public boolean estaApoyado(Gnomo g, Isla i) {
-            return Math.abs(g.getBorderInferior()-i.getBorderSuperior())<1 && (g.getBorderIzquierdo()<i.getBorderDerecho()) && 
-                    (g.getBorderDerecho()>i.getBorderIzquierdo());
-        }
-
-        //retorna true si el gnomo se encuentra pisando una isla del arreglo, retorna false de lo contrario
-        public boolean estaApoyadoGnomo(Gnomo n, Isla[] i) {
-            for(Isla islas: i) {
-                if(estaApoyado(n,islas)) { 
-                    return true;
-                }
-            }
-            return false;
-        }
+   
 	
         
      // recorre un array de objetos bomba, y agrega una bomba en la posicion de la torutuga
@@ -597,6 +597,7 @@ public class Juego extends InterfaceJuego
 		this.entor.cambiarFont("italy", 20, Color.black);
 		this.entor.escribirTexto("ESCUDOS: " + this.escudo.getUsos(), 10, 575);
 	}
+	
 	private void mostrarVida() { //Imprime en pantalla la cantidad de vidas que tiene el jugador
 		this.entor.cambiarFont("italy", 20, Color.black);
 		this.entor.escribirTexto("VIDAS: " + this.jugador.getVida(), 210, 575);
